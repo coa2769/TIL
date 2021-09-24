@@ -1,0 +1,5 @@
+## 파일 무시
+text.txt
+
+## 폴더 무시
+.\nodejs-crawler
