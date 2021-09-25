@@ -465,60 +465,43 @@ const crawler = async ()=>{
         await page.goto('https://unsplash.com');
         let result = [];
 
-        //<< 첫번째로 이미지 src 가져오기 >>
-        let srcs = await page.evaluate(()=>{
-            let imgs = [];
-            const imgEls = document.querySelectorAll('._6IG7');
-            if(imgEls.length){
-                imgEls.forEach((v)=>{
-                    //1. 이미지 소스를 얻음
-                    let src = v.querySelector('img.oCCRx').src;
-                    if(src){
-                        imgs.push(src);
-                    }
-                    //2. 해당 tag를 삭제
-                    v.parentElement.removeChild(v);
-                });
-            }
+        while(result.length <= 30){
+            let srcs = await page.evaluate(()=>{
+                //0. 스크롤을 맨 위로 올린다.
+                //scrollBy : 상대 좌표
+                //scrollTo : 절대 좌표
+                window.scrollTo(0, 0);
 
-            //3. 스크롤을 내리는 동작을 한다.
-            //기존 로드한 tag는 삭제되었으므로 조금만 내려도 다음 컨텐츠를 가져오게 된다.
-            window.scrollBy(0, 300);
-            return imgs;
-        });
+                let imgs = [];
+                const imgEls = document.querySelectorAll('._6IG7');
+                if(imgEls.length){
+                    imgEls.forEach((v)=>{
+                        //1. 이미지 소스를 얻음
+                        let src = v.querySelector('img.oCCRx').src;
+                        if(src){
+                            imgs.push(src);
+                        }
+                        //2. 해당 tag를 삭제
+                        v.parentElement.removeChild(v);
+                    });
+                }
+    
+                //3. 스크롤을 내리는 동작을 한다.
+                //기존 로드한 tag는 삭제되었으므로 조금만 내려도 다음 컨텐츠를 가져오게 된다.
+                window.scrollBy(0, 300);
+                return imgs;
+            });
 
-        result = result.concat(srcs);
+            result = result.concat(srcs);
 
-        //waitForSelector : 선택자에 해당하는 태그가 로딩될 때 까지 기다림.
-        //만약 30간 기다린 후 선택자를 못 찾으면 timeout 에러가 된다.
-        await page.waitForSelector('._6IG7');
-        console.log('태그 로딩 완료!');
+            //waitForSelector : 선택자에 해당하는 태그가 로딩될 때 까지 기다림.
+            //만약 30간 기다린 후 선택자를 못 찾으면 timeout 에러가 된다.
+            await page.waitForSelector('._6IG7');
+            console.log('태그 로딩 완료!');
 
-        //<< 두번째로 이미지 src 가져오기 >>
-        srcs = await page.evaluate(()=>{
-            let imgs = [];
-            const imgEls = document.querySelectorAll('._6IG7');
-            if(imgEls.length){
-                imgEls.forEach((v)=>{
-                    //1. 이미지 소스를 얻음
-                    let src = v.querySelector('img.oCCRx').src;
-                    if(src){
-                        imgs.push(src);
-                    }
-                    //2. 해당 tag를 삭제
-                    v.parentElement.removeChild(v);
-                });
-            }
+        }
 
-            //3. 스크롤을 내리는 동작을 한다.
-            //기존 로드한 tag는 삭제되었으므로 조금만 내려도 다음 컨텐츠를 가져오게 된다.
-            window.scrollBy(0, 300);
-            return imgs;
-        });
-
-        result = result.concat(srcs);
-
-        console.log(result);
+        console.log(result.length);
 
         //page, browser 닫기
         await page.close();    
