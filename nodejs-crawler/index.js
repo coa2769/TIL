@@ -458,6 +458,13 @@ const puppeteer = require('puppeteer');
 const axios = require('axios');
 const fs = require('fs');
 
+fs.readdir('imgs', (err)=>{
+    if(err){
+        console.error('imgs 폴더가 없어 imgs 폴더를 생성합니다.');
+        fs.mkdirSync('imgs');
+    }
+});
+
 const crawler = async ()=>{
     try{
         const browser = await puppeteer.launch({headless : false});
@@ -502,6 +509,9 @@ const crawler = async ()=>{
         }
 
         console.log(result.length);
+        result.forEach(async(src)=>{
+
+        });
 
         //page, browser 닫기
         await page.close();    
