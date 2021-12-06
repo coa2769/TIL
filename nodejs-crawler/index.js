@@ -454,71 +454,409 @@ Postman의 Preview로 하면을 확인하면 크롤러가 보게되는 화면을
 
 */
 
-const puppeteer = require('puppeteer');
-const axios = require('axios');
-const fs = require('fs');
+// const puppeteer = require('puppeteer');
+// const axios = require('axios');
+// const fs = require('fs');
 
-fs.readdir('imgs', (err)=>{
-    if(err){
-        console.error('imgs 폴더가 없어 imgs 폴더를 생성합니다.');
-        fs.mkdirSync('imgs');
-    }
-});
+// fs.readdir('imgs', (err)=>{
+//     if(err){
+//         console.error('imgs 폴더가 없어 imgs 폴더를 생성합니다.');
+//         fs.mkdirSync('imgs');
+//     }
+// });
+
+// const crawler = async ()=>{
+//     try{
+//         const browser = await puppeteer.launch({headless : false});
+//         const page = await browser.newPage();
+//         await page.goto('https://unsplash.com');
+//         let result = [];
+
+//         while(result.length <= 30){
+//             let srcs = await page.evaluate(()=>{
+//                 //0. 스크롤을 맨 위로 올린다.
+//                 //scrollBy : 상대 좌표
+//                 //scrollTo : 절대 좌표
+//                 window.scrollTo(0, 0);
+
+//                 let imgs = [];
+//                 const imgEls = document.querySelectorAll('._6IG7');
+//                 if(imgEls.length){
+//                     imgEls.forEach((v)=>{
+//                         //1. 이미지 소스를 얻음
+//                         let src = v.querySelector('img.oCCRx').src;
+//                         if(src){
+//                             imgs.push(src);
+//                         }
+//                         //2. 해당 tag를 삭제
+//                         v.parentElement.removeChild(v);
+//                     });
+//                 }
+    
+//                 //3. 스크롤을 내리는 동작을 한다.
+//                 //기존 로드한 tag는 삭제되었으므로 조금만 내려도 다음 컨텐츠를 가져오게 된다.
+//                 window.scrollBy(0, 300);
+//                 return imgs;
+//             });
+
+//             result = result.concat(srcs);
+
+//             //waitForSelector : 선택자에 해당하는 태그가 로딩될 때 까지 기다림.
+//             //만약 30간 기다린 후 선택자를 못 찾으면 timeout 에러가 된다.
+//             await page.waitForSelector('._6IG7');
+//             console.log('태그 로딩 완료!');
+
+//         }
+
+//         console.log(result.length);
+//         result.forEach(async(src)=>{
+//             const imgResult = await axios.get(src.replace(/\?.*$/, ''),{ 
+//                 responseType : 'arraybuffer'
+//             });
+
+//             fs.writeFileSync(`imgs/${new Date().valueOf()}.jpeg`, imgResult.data);
+//         });
+
+//         //page, browser 닫기
+//         await page.close();    
+//         await browser.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// }
+
+// crawler();
+
+//==================================================================================//
+//5-1 페이스북 로그인 태그 분석
+//rechapter <- 사람인지 판단하는 서비스. 해당 서비스를 피하는 방법 강의에서 따로 다루지 않는다.
+//2021.11.30 현재는 화면의 html이 바껴서 사용할 수 없는 구조이다.
+//다만 해당 예제는 여태까지 배운 tag를 분석하는 방법으로 로그인 하는 방법임을 알아두자.
+
+//해당 방법은 문제가 두가지 있다. 
+//첫번째 문제) 메일과 비밀번호가 코드에 하드 코딩되어 있다.
+//두번째 문제) html 구조가 변경되면 코드를 전면 수정해야 한다.
+
+// const puppeteer = require('puppeteer');
+
+// const crawler = async ()=>{
+//     try{
+//         const browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080']});
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+//         await page.evaluate(()=>{
+//             document.querySelector('#email').value = 'zerohch0@gmail.com';
+//             document.querySelector('#pass').value = '12345678';
+//             document.querySelector('#loginbutton').click();
+//         })
+//         // await page.close();
+//         // await browser.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//5-2 dotenv로 비밀번호 관리하기
+//5-1의 첫번째 문제를 해결하는 방법이다.
+
+//dotenv 패키지는 외부 환경변수 파일(.env)에 작성한 내용을 node.js에서 환경변수로 사용할 때 쓰인다.
+//https://hudi.kr/node-js-dotenv-%ED%99%98%EA%B2%BD-%EB%B3%80%EC%88%98-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0/
+//https://www.npmjs.com/package/dotenv
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+// dotenv.config(); //.env파일에 작성한 환경변수를 불러와 process.env 에 구성한다.
+
+// const crawler = async ()=>{
+//     try{
+//         const browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080']});
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+//         const id = process.env.EMAIL;
+//         const password = process.env.PASSWORD;
+//         //evaluate내부는 JS 스코프를 따르지 않아서 인자로 넘겨야 한다.
+//         await page.evaluate((id, password)=>{
+//             document.querySelector('#email').value = id;
+//             document.querySelector('#pass').value = password;
+//             document.querySelector('#loginbutton').click();
+//         }, id, password);
+//         // await page.close();
+//         // await browser.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+//==================================================================================//
+//5-3 5-4 type, hover. click, keyboard / 페이스북 로그아웃
+//evaluate 이외의 puppeteer에서 지원해주는 함수들
+// - type : 매개변수를 선택자를 입력하면 해당 tag에 키보드 입력을 한다.
+// - hover : 매개변수를 선택자를 입력하면 해당 tag에 마우스를 올려놓는다.
+// - click : 매개변수를 선택자를 입력하면 해당 tag에 마우스 클릭을 한다.
+//           해당 함수가 잘 적용되지 않는다면 evaluate함수에서 tag의 click이벤트를 처리하면 된다.
+// - keyboard.press : 매개변수에 입력한 키를 누른다.
+//아래 URL은 puppeteer에서 지원하는 키보드 키의 이름이다.
+//https://github.com/puppeteer/puppeteer/blob/v1.12.2/lib/USKeyboardLayout.js
+
+//사람이 해당 페이지에서 어떻게 행동하는지 생각하며 크롤러를 구현하면된다.
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+// dotenv.config(); //.env파일에 작성한 환경변수를 불러와 process.env 에 구성한다.
+
+// const crawler = async ()=>{
+//     try{
+//         const browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080']});
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+        
+//         //1. 이메일과 페스워드 입력
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         //2. 로그인 버튼 클릭
+//         //로그인 버튼 tag의 id가 페이지에 들어갈 때 마다 바뀌므로 class로 해당 tag를 구분했다.
+//         //hover 없이 바로 click이 가능하다.
+//         await page.hover('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.waitFor(3000);
+//         await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.waitFor(1000);
+//         //3. ESC 키를 눌러 권한요구 요청 창을 닫는다.
+//         await page.keyboard.press('Escape');
+//         //4. 왼쪽 상단 버튼을 눌러 user navigation을 연다.
+//         await page.click('#userNavigationLabel');
+//         //5. user navigation에 있는 로그아웃 버튼을 누른다.
+//         await page.waitForSelector('li.navSubmenu:last-child');
+//         await page.click('li.navSubmenu:last-child');
+        
+//         // await page.close();
+//         // await browser.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+//==================================================================================//
+//5-5 waitForResponse
+//page.waitFor 함수를 통해 특정 시간을 기다리는 것이 아니라 
+//더 정확하게 내가 원하는 페이지가 열렸을 때 다음 동작을 실행하도록 하기위해 waitForResponse함수를 사용한다.
+
+// - waitForRequest : 요청 대기
+// - waitForResponse : 응답 대기
+
+// @  puppeteer.launch의 args에 '--disable-notifications'를 배열에 추가하면 화면에 뜨는 경고 알람을 멈출 수 있다.
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+// dotenv.config(); //.env파일에 작성한 환경변수를 불러와 process.env 에 구성한다.
+
+// const crawler = async ()=>{
+//     try{
+//         const browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+        
+//         //1. 이메일과 페스워드 입력
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         //2. 로그인 버튼 클릭
+//         //로그인 버튼 tag의 id가 페이지에 들어갈 때 마다 바뀌므로 class로 해당 tag를 구분했다.
+//         //hover 없이 바로 click이 가능하다.
+//         await page.hover('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.waitFor(3000);
+//         await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         //3. 응답 url에 login_attemp가 있는지 판별 
+//         await page.waitForResponse((response)=>{
+//             console.log(response, response.url());
+            
+//             return response.url().includes('login_attempt');
+//         });
+       
+//         //4. 왼쪽 상단 버튼을 눌러 user navigation을 연다.
+//         await page.click('#userNavigationLabel');
+//         //5. user navigation에 있는 로그아웃 버튼을 누른다.
+//         await page.waitForSelector('li.navSubmenu:last-child');
+//         await page.click('li.navSubmenu:last-child');
+        
+//         // await page.close();
+//         // await browser.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//5-6 마우스 조작하기
+//puppeteer로 연 브라우저에서 움직이는 가상 마우스는 사용자에게 잘 보이지 않는다.
+//아래의 url 코드로 가상 마우스의 움직임을 볼 수 있다.
+//https://github.com/ZeroCho/nodejs-crawler/blob/master/8.facebook-login-logout/index.js
+
+//page.mouse : 브라우저에서 마우스를 조작하는 함수를 지원한다.
+//page.mouse.move : 브라우저의 해당 위치로 마우스가 움직인다.
+//page.mouse.down : 브라우저 안에서 마우스를 누른 상태로 변경해준다. (드레그에 쓰인다.)
+//page.mouse.click : 브라우저의 해당 위치에 마우스 클릭을 할 수 있다.
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+// dotenv.config(); //.env파일에 작성한 환경변수를 불러와 process.env 에 구성한다.
+
+// const crawler = async ()=>{
+//     try{
+//         const browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+        
+//         await page.goto('https://facebook.com');
+//         const id = process.env.EMAIL;
+//         const password = process.env.PASSWORD;
+//         await page.evaluate(() => {
+//           (() => {
+//             const box = document.createElement('div');
+//             box.classList.add('mouse-helper');
+//             const styleElement = document.createElement('style');
+//             styleElement.innerHTML = `
+//               .mouse-helper {
+//                 pointer-events: none;
+//                 position: absolute;
+//                 z-index: 100000;
+//                 top: 0;
+//                 left: 0;
+//                 width: 20px;
+//                 height: 20px;
+//                 background: rgba(0,0,0,.4);
+//                 border: 1px solid white;
+//                 border-radius: 10px;
+//                 margin-left: -10px;
+//                 margin-top: -10px;
+//                 transition: background .2s, border-radius .2s, border-color .2s;
+//               }
+//               .mouse-helper.button-1 {
+//                 transition: none;
+//                 background: rgba(0,0,0,0.9);
+//               }
+//               .mouse-helper.button-2 {
+//                 transition: none;
+//                 border-color: rgba(0,0,255,0.9);
+//               }
+//               .mouse-helper.button-3 {
+//                 transition: none;
+//                 border-radius: 4px;
+//               }
+//               .mouse-helper.button-4 {
+//                 transition: none;
+//                 border-color: rgba(255,0,0,0.9);
+//               }
+//               .mouse-helper.button-5 {
+//                 transition: none;
+//                 border-color: rgba(0,255,0,0.9);
+//               }
+//               `;
+//             document.head.appendChild(styleElement);
+//             document.body.appendChild(box);
+//             document.addEventListener('mousemove', event => {
+//               box.style.left = event.pageX + 'px';
+//               box.style.top = event.pageY + 'px';
+//               updateButtons(event.buttons);
+//             }, true);
+//             document.addEventListener('mousedown', event => {
+//               updateButtons(event.buttons);
+//               box.classList.add('button-' + event.which);
+//             }, true);
+//             document.addEventListener('mouseup', event => {
+//               updateButtons(event.buttons);
+//               box.classList.remove('button-' + event.which);
+//             }, true);
+//             function updateButtons(buttons) {
+//               for (let i = 0; i < 5; i++)
+//                 box.classList.toggle('button-' + i, !!(buttons & (1 << i)));
+//             }
+//           })();
+//         });
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         await page.hover('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.mouse.move(800, 300);
+//         await page.waitFor(1000);
+//         await page.mouse.click(800, 300);
+        
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//5-7 focus와 대문자 입력하기
+//page.focus : input 또는 button 에 포커스를 주는 함수. 하지만 해당 함수가 적용되지 않는 페이지도 있다.
+
+//page.keyboard.down : 매개변수로 입력된 키를 키보드에서 누르고 있는 상태로 변경한다.
+//page.keyboard.press : 매개변수로 입력된 키를 키보드에서 한번 누른다.
+//page.keyboard.up : 매개변수로 입력된 키가 down함수로 누르고 있는 상태라면 해제한다.
+
+
+const puppeteer = require('puppeteer');
+const dotenv = require('dotenv');
+dotenv.config(); //.env파일에 작성한 환경변수를 불러와 process.env 에 구성한다.
 
 const crawler = async ()=>{
     try{
-        const browser = await puppeteer.launch({headless : false});
+        const browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
         const page = await browser.newPage();
-        await page.goto('https://unsplash.com');
-        let result = [];
-
-        while(result.length <= 30){
-            let srcs = await page.evaluate(()=>{
-                //0. 스크롤을 맨 위로 올린다.
-                //scrollBy : 상대 좌표
-                //scrollTo : 절대 좌표
-                window.scrollTo(0, 0);
-
-                let imgs = [];
-                const imgEls = document.querySelectorAll('._6IG7');
-                if(imgEls.length){
-                    imgEls.forEach((v)=>{
-                        //1. 이미지 소스를 얻음
-                        let src = v.querySelector('img.oCCRx').src;
-                        if(src){
-                            imgs.push(src);
-                        }
-                        //2. 해당 tag를 삭제
-                        v.parentElement.removeChild(v);
-                    });
-                }
-    
-                //3. 스크롤을 내리는 동작을 한다.
-                //기존 로드한 tag는 삭제되었으므로 조금만 내려도 다음 컨텐츠를 가져오게 된다.
-                window.scrollBy(0, 300);
-                return imgs;
-            });
-
-            result = result.concat(srcs);
-
-            //waitForSelector : 선택자에 해당하는 태그가 로딩될 때 까지 기다림.
-            //만약 30간 기다린 후 선택자를 못 찾으면 timeout 에러가 된다.
-            await page.waitForSelector('._6IG7');
-            console.log('태그 로딩 완료!');
-
-        }
-
-        console.log(result.length);
-        result.forEach(async(src)=>{
-
+        await page.setViewport({
+            width : 1080,
+            height : 1080
         });
+        await page.goto('https://facebook.com');
 
-        //page, browser 닫기
-        await page.close();    
-        await browser.close();
+        await page.focus('#email');
+        //대문자 입력 방법
+        await page.click('#email');
+        await page.keyboard.down('ShiftLeft');
+        await page.keyboard.press('KeyZ');
+        await page.waitFor(1000);
+        await page.keyboard.press('KeyE');
+        await page.waitFor(1000);
+        await page.keyboard.press('KeyR');
+        await page.waitFor(1000);
+        await page.keyboard.press('KeyO');
+        await page.waitFor(1000);
+        await page.keyboard.press('KeyC');
+        await page.waitFor(1000);
+        await page.keyboard.press('KeyH');
+        await page.waitFor(1000);
+        await page.keyboard.press('KeyO');
+        await page.waitFor(1000);
+        await page.keyboard.up('ShiftLeft');
+        
     }catch(e){
         console.error(e);
     }
-}
+};
 
 crawler();
