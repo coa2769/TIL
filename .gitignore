@@ -1,4 +1,6 @@
 ## 파일 무시
+nodejs-crawler/config/config.json
+nodejs-crawler/.env
 
 ## 폴더 무시
 nodejs-crawler-ori/
