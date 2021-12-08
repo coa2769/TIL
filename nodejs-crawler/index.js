@@ -944,23 +944,252 @@ Postman의 Preview로 하면을 확인하면 크롤러가 보게되는 화면을
 
 //!! 해당 예제를 실행할 때 config에 비밀번호를 입력해야 한다.
 
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+//     //7. DB 연결
+//     await db.sequelize.sync();
+
+//     try{
+
+
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+//==================================================================================//
+//6-4 크롤링 결과물 데이터베이스에 저장하기
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+//     //7. DB 연결
+//     await db.sequelize.sync();
+
+//     try{
+//         let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://spys.one/free-proxy-list/KR/');
+//         const proxies = await page.evaluate(()=>{
+//             const ips = Array.from(document.querySelectorAll('tr > td:first-of-type > .spy14')).map((v)=>v.textContent.replace(/document\.write\(.+\)/, ''));
+//             const types = Array.from(document.querySelectorAll('tr > td:nth-of-type(2)')).slice(5).map((v)=>v.textContent);
+//             const latencies = Array.from(document.querySelectorAll('tr > td:nth-of-type(6) .spy1')).map((v)=>v.textContent);
+
+//             return ips.map((v, i)=>{
+//                 return {
+//                     ip:v,
+//                     type : types[i],
+//                     latency : latencies[i]
+//                 }
+//             });
+//         });
+
+//         //type이 HTTP인 프록시만 걸러낸다.
+//         const filtered = proxies.filter((v)=>v.type === 'HTTP').sort((p, c) => p.latency - c.latency);
+//         //1. DB에 프록시 목록을 저장한다.
+//         await Promise.all(filtered.map((v)=>{
+//             return db.Proxy.upsert({
+//                 ip : v.ip,
+//                 type : v.type,
+//                 latency : v.latency
+//             });
+//         }));
+
+//         await page.close();
+//         await browser.close();
+
+//         //
+//         const fatestProxy = await db.Proxy.findOne({
+//             order : [['latency', 'ASC']],
+//         });
+        
+//         console.log(fatestProxy.dataValues.ip);
+
+//         browser = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications', `--proxy-server=${fatestProxy.dataValues.ip}`],
+//         });
+//         page = await browser.newPage();
+//         await page.goto('https://www.naver.com/');
+//         await page.waitFor(10000);
+//         await page.close();
+//         await browser.close();
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+
+//==================================================================================//
+//6-5 브라우저 여러 개 사용하기
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+//     //7. DB 연결
+//     await db.sequelize.sync();
+
+//     try{
+//         let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://spys.one/free-proxy-list/KR/');
+//         const proxies = await page.evaluate(()=>{
+//             const ips = Array.from(document.querySelectorAll('tr > td:first-of-type > .spy14')).map((v)=>v.textContent.replace(/document\.write\(.+\)/, ''));
+//             const types = Array.from(document.querySelectorAll('tr > td:nth-of-type(2)')).slice(5).map((v)=>v.textContent);
+//             const latencies = Array.from(document.querySelectorAll('tr > td:nth-of-type(6) .spy1')).map((v)=>v.textContent);
+
+//             return ips.map((v, i)=>{
+//                 return {
+//                     ip:v,
+//                     type : types[i],
+//                     latency : latencies[i]
+//                 }
+//             });
+//         });
+
+//         const filtered = proxies.filter((v)=>v.type === 'HTTP').sort((p, c) => p.latency - c.latency);
+
+//         await Promise.all(filtered.map((v)=>{
+//             return db.Proxy.upsert({
+//                 ip : v.ip,
+//                 type : v.type,
+//                 latency : v.latency
+//             });
+//         }));
+
+//         await page.close();
+//         await browser.close();
+
+//         //
+//         const fatestProxy = await db.Proxy.findAll({
+//             order : [['latency', 'ASC']],
+//         });
+        
+//         console.log(fatestProxy[0].dataValues.ip);
+//         console.log(fatestProxy[1].dataValues.ip);
+//         console.log(fatestProxy[2].dataValues.ip);
+
+//         browser = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications', `--proxy-server=${fatestProxy[0].dataValues.ip}`],
+//         });
+
+//         browser2 = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications', `--proxy-server=${fatestProxy[1].dataValues.ip}`],
+//         });
+
+//         browser3 = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications', `--proxy-server=${fatestProxy[2].dataValues.ip}`],
+//         });
+
+//         const page1 = await browser.newPage();
+//         const page2 = await browser2.newPage();
+//         const page3 = await browser3.newPage();
+
+//         await page1.goto('https://www.naver.com/');
+//         await page2.goto('https://www.naver.com/');
+//         await page3.goto('https://www.naver.com/');
+
+
+//         //<<각각의 새로운 페이지를 만드는 방법>>
+//         //크롬의 시크릿 브라우저를 만들어서 띄우는 방법
+//         // const context = await browser.createIncognitoBrowserContext();
+//         // const context2 = await browser.createIncognitoBrowserContext();
+//         // const context3 = await browser.createIncognitoBrowserContext();
+
+//         // console.log(await browser.browserContexts());
+
+//         // const page1 = await context.newPage();
+//         // const page2 = await context2.newPage();
+//         // const page3 = await context3.newPage();
+
+//         // await page1.goto('https://www.naver.com/');
+//         // await page2.goto('https://www.naver.com/');
+//         // await page3.goto('https://www.naver.com/');
+
+
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+
+
+
+
+//==================================================================================//
+//7-1 페이스북 크롤링 준비
+
 const puppeteer = require('puppeteer');
 const dotenv = require('dotenv');
 
 const db = require('./models');
-dotenv.config(); //.env파일에 작성한 환경변수를 불러와 process.env 에 구성한다.
+dotenv.config(); 
 
 const crawler = async ()=>{
 
-    //7. DB 연결
-    await db.sequelize.sync();
-
+    
     try{
+        await db.sequelize.sync();
+        let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+        let page = await browser.newPage();
+        await page.setViewport({
+            width : 1080,
+            height : 1080
+        });
+        await page.goto('https://facebook.com');
+        //1. 페이스 북 로그인
+        await page.type('#email', process.env.EMAIL);
+        await page.type('#pass', process.env.PASSWORD);
+        await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+        await page.waitForResponse((response)=>{            
+            return response.url().includes('login_attempt');
+        });
+        await page.keyboard.press('Escape');
+        
+        //2.
 
+
+
+        await db.sequelize.close();
     }catch(e){
         console.error(e);
     }
 };
 
 crawler();
-//==================================================================================//
+
+
+
