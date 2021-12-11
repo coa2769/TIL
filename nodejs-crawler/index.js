@@ -1239,6 +1239,744 @@ Postman의 Preview로 하면을 확인하면 크롤러가 보게되는 화면을
 //==================================================================================//
 //7-4 반복 작업 수행하기
 
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+//         //1. 페이스 북 로그인
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.waitForResponse((response)=>{            
+//             return response.url().includes('login_attempt');
+//         });
+//         await page.keyboard.press('Escape');
+        
+//         let result = [];
+//         while(result.length < 10){
+
+//             //2. 포스트가 띄워질 때까지 기다린다.
+//             await page.waitForSelector('[id^=hyperfeed_story_id]:first-child');
+//             //3. 포스트에 접근해 아이디, 게시글, 작성자, 이미지를 가져온다.
+//             const newPost = await page.evaluate(()=>{
+//                 //3.1. 첫번째 포스트 가져오기
+//                 const firtstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
+//                 //3.2. 작성자 이름 가져오기
+//                 const name = firtstFeed.querySelector('.fwb.fcg') && firtstFeed.querySelector('.fwb.fcg').textContent;
+//                 //3.3. 포스트 내용 가져오기
+//                 const content = firtstFeed.querySelector('.userContent') && firtstFeed.querySelector('.userContent').textContent;
+//                 //3.4. 포스트 아이디 가져오기
+//                 //split : 구분자로 여러 개의 문자열로 나눈다. (['', ''] 형식으로 반환)
+//                 //slice : 매개변수로 index값인 begin과 end를 받는다. begin부터 end까지 얕은 복사하여 새로운 배열 객체 반환.(-1은 배열의 끝이다.);
+//                 const postId = firtstFeed.id.split('_').slice(-1)[0];
+//                 //3.5. 이미지 url 가져오기
+//                 const img = firstFeed.querySelector('[class=mtm] img') && firstFeed.querySelector('[class=mtm] img').src;
+//                 return {
+//                     name, content, postId, img,
+//                 }
+//             });
+
+//             //4. 포스트에 좋아요 버튼 누르기
+//             const likeBtn = await page.$('[id^=hyperfeed_story_id]:first-child._666k a');
+//             await page.evaluate((like)=>{
+//                 //sponsor.textContent에 해당 문자열이 있으면 광고이므로 좋아요를 누르지 않는다.
+//                 const sponsor = document.querySelector('[id^=hyperfeed_story_id]:first-child')
+//                 .textContent.includes('SpSpSononSsosoSredredSSS');
+
+//                 if(!sponsor && like.getAttribute('aria-pressed') === 'false'){
+//                     like.click();
+//                 }else if(sponsor && like.getAttribute('aria-pressed') === 'true'){
+//                     like.click();
+//                 }
+//             }, likeBtn);
+
+//             await page.waitFor(1000);
+//             //5. 컨텐츠를 다 가져온 first-child 포스트는 삭제한다.
+//             await page.evaluate(()=>{
+//                 const firstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
+//                 firstFeed.parentNode.removeChild(firstFeed);
+//             });
+//             await page.waitFor(1000);
+//         }
+
+
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+
+//==================================================================================//
+//7-5 한 번 저장한 게시글 무시하기
+//가져온 결과를 DB에 저장
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+//         //페이스 북 로그인
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.waitForResponse((response)=>{            
+//             return response.url().includes('login_attempt');
+//         });
+//         await page.keyboard.press('Escape');
+        
+//         let result = [];
+//         while(result.length < 10){
+
+//             //포스트가 띄워질 때까지 기다린다.
+//             await page.waitForSelector('[id^=hyperfeed_story_id]:first-child');
+//             //포스트에 접근해 아이디, 게시글, 작성자, 이미지를 가져온다.
+//             const newPost = await page.evaluate(()=>{
+//                 //3. 스크롤을 가장 위에 두기 (인피니트 페이지 에서 스크롤 이슈가 생기지 않는다. )
+//                 window.scrollTo(0, 0);
+//                 //첫번째 포스트 가져오기
+//                 const firtstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
+//                 //작성자 이름 가져오기
+//                 const name = firtstFeed.querySelector('.fwb.fcg') && firtstFeed.querySelector('.fwb.fcg').textContent;
+//                 //포스트 내용 가져오기
+//                 const content = firtstFeed.querySelector('.userContent') && firtstFeed.querySelector('.userContent').textContent;
+//                 //포스트 아이디 가져오기
+//                 //split : 구분자로 여러 개의 문자열로 나눈다. (['', ''] 형식으로 반환)
+//                 //slice : 매개변수로 index값인 begin과 end를 받는다. begin부터 end까지 얕은 복사하여 새로운 배열 객체 반환.(-1은 배열의 끝이다.);
+//                 const postId = firtstFeed.id.split('_').slice(-1)[0];
+//                 //이미지 url 가져오기
+//                 const img = firstFeed.querySelector('[class=mtm] img') && firstFeed.querySelector('[class=mtm] img').src;
+//                 return {
+//                     name, content, postId, img,
+//                 }
+//             });
+
+//             //2. 기존에 저장된 포스트라면 버린다.(다시 저장하지 않음)
+//             const exist = await db.Facebook.findOne({
+//                 where:{
+//                     postId: newPost.postId,
+//                 }
+//             });
+
+//             if(!exist && newPost.name){
+//                 result.push(newPost);
+//             }
+
+//             //포스트에 좋아요 버튼 누르기
+//             const likeBtn = await page.$('[id^=hyperfeed_story_id]:first-child._666k a');
+//             await page.evaluate((like)=>{
+//                 //sponsor.textContent에 해당 문자열이 있으면 광고이므로 좋아요를 누르지 않는다.
+//                 const sponsor = document.querySelector('[id^=hyperfeed_story_id]:first-child')
+//                 .textContent.includes('SpSpSononSsosoSredredSSS');
+
+//                 if(!sponsor && like.getAttribute('aria-pressed') === 'false'){
+//                     like.click();
+//                 }else if(sponsor && like.getAttribute('aria-pressed') === 'true'){
+//                     like.click();
+//                 }
+//             }, likeBtn);
+
+//             await page.waitFor(1000);
+//             //컨텐츠를 다 가져온 first-child 포스트는 삭제한다.
+//             await page.evaluate(()=>{
+//                 const firstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
+//                 firstFeed.parentNode.removeChild(firstFeed);
+
+//                 //4. 스크롤을 내려서 다음 컨텐츠가 로드되도록 한다. (인피니트 페이지 에서 스크롤 이슈가 생기지 않는다. )
+//                 window.scrollBy(0, 200);
+//             });
+//             await page.waitFor(1000);
+
+//         }
+
+//         //1. DB에 저장
+//         await Promise.all(result.map((r)=>{
+//             return db.Facebook.upsert({
+//                 postId: r.postId,
+//                 media: r.img,
+//                 writer: r.name,
+//                 content: r.content,
+//             });
+//         }));
+
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//7-6 보너스 페이스북 게시글 작성하기
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://facebook.com');
+//         //페이스 북 로그인
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
+//         await page.waitForResponse((response)=>{            
+//             return response.url().includes('login_attempt');
+//         });
+//         await page.keyboard.press('Escape');
+        
+//         //1. 포스트 작성하는 곳 클릭
+//         await page.waitForSelector('textarea');
+//         //1.1. textarea를 클릭
+//         await page.click('textarea');
+//         //1.2. 숨겨 있던 또 다른 tag 클릭 (이후에 글 작성이 가능하도록 되어 있다.)
+//         await page.waitForSelector('._5rpb > div');
+//         await page.click('._5rpb > div');
+
+//         //2. 글 작성
+//         await page.keyboard.type('인간지능 제로초봇 동작중...');
+
+//         //3. '공유하기' 버튼 클릭
+//         await page.waitForSelector('._6c0o button');
+//         await page.waitFor(5000);
+//         await page.click('._6c0o button');
+    
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//8-1 waitForNavigation
+//waitForNavigation : 페이지가 바뀌는 것을 기다린다. (리다이렉트 될때 사용됨.)
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://www.instagram.com/?hl=ko');
+//         //1. 'facebook으로 로그인' 버튼을 클릭
+//         await page.waitForSelector('button.L3NKy');
+//         await page.click('button.L3NKy');
+//         //2. facebook 로그인 페이지로 리다이렉트되는 것을 기다린다.
+//         await page.waitForNavigation();
+//         //3. facebook에서 로그인
+//         await page.waitForSelector('#email');
+//         await page.type('#email', process.env.EMAIL);
+//         await page.type('#pass', process.env.PASSWORD);
+//         await page.waitForSelector('#loginbutton');
+//         await page.click('#loginbutton');
+//         //4. instagram 페이지로 리다이렉트되는 것을 기다린다.
+//         await page.waitForNavigation();
+
+    
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//8-2 userDataDir로 로그인 유지하기
+//내 컴퓨터나 노트북에는 이미 여러 계정들이 로그인 되어 있는 경우가 많다.
+//이를 이용하여 로그인 과정을 생략하는 방법을 강의에서 설명해준다.
+
+//- 로그인 아이콘들로 로그인이 되어있음을 판단할 수 있다.
+//- puppeteer는 모든 데이터들이 초기화 된 상태의 브라우저가 기본이다.
+//- puppeteer도 쿠키와 같은 것들을 저장할 수 있다. -> userDataDir 활용
+//  - puppeteer.launch에서 userDataDir 속성에 쿠키를 저장할 폴더를 지정해 주면된다.
+//  - 우리가 사용하는 chrome은 아래의 폴더에 쿠키를 저장한다.
+//      - [사용자이름]/AppData/Local/Google/Chrome/UserData/Default
+//  - 우리는 위 폴더 위치에 puppeteer의 쿠키를 저장한다.
+//  - 쿠키를 저장하기 전 처음에는 로그인을 해줘야 한다.
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         //1. userDataDir에 폴더 경로 지정
+//         let browser = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications'],
+//             userDataDir : 'C:\Users\clnme\AppData\Local\Google\Chrome\User Data\Default',
+//         });
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://www.instagram.com/?hl=ko');
+
+//         if (await page.$('a[href="/zerohch0/"]')) {
+//             console.log('이미 로그인 되어 있습니다.');
+//         } else {
+//             //'facebook으로 로그인' 버튼을 클릭
+//             await page.waitForSelector('button.L3NKy');
+//             await page.click('button.L3NKy');
+//             //facebook 로그인 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             //facebook에서 로그인
+//             await page.waitForSelector('#email');
+//             await page.type('#email', process.env.EMAIL);
+//             await page.type('#pass', process.env.PASSWORD);
+//             await page.waitForSelector('#loginbutton');
+//             await page.click('#loginbutton');
+//             //instagram 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             console.log('로그인 완료');
+//         }
+
+    
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//8-3 인스타그램 태그 분석(virtualized list)
+//# virtualized list
+//+ 스크롤하여 넘어간 포스트는 리스트에서 삭제하고
+//+ 삭제한 갯수만큼 리스트에 새로운 포스트를 추가한다.
+//+ 보여주는 리스트의 개수를 일정하게 유지한다.
+//+ 메모리를 아끼기 위해 사용되는 방법
+
+//- virtaulized list 때문에 페이스북의 크롤링 방법을 그대로 사용할 수 없다.
+//- 공유하기 ui나 버튼에서 게시글의 id를 찾기가 쉽다.
+//  - 해당 버튼을 눌렀을 때 해당 게시글만 나오도록 이동한다면 그 ui에서 id를 찾아보자.
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         //1. userDataDir에 폴더 경로 지정
+//         let browser = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications'],
+//             userDataDir : 'C:\Users\clnme\AppData\Local\Google\Chrome\User Data\Default',
+//         });
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://www.instagram.com/?hl=ko');
+
+//         if (await page.$('a[href="/zerohch0/"]')) {
+//             console.log('이미 로그인 되어 있습니다.');
+//         } else {
+//             //'facebook으로 로그인' 버튼을 클릭
+//             await page.waitForSelector('button.L3NKy');
+//             await page.click('button.L3NKy');
+//             //facebook 로그인 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             //facebook에서 로그인
+//             await page.waitForSelector('#email');
+//             await page.type('#email', process.env.EMAIL);
+//             await page.type('#pass', process.env.PASSWORD);
+//             await page.waitForSelector('#loginbutton');
+//             await page.click('#loginbutton');
+//             //instagram 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             console.log('로그인 완료');
+//         }
+
+//         const newPost = await page.evaluate(() => {
+//             //1. 가져올 포스트 찾기
+//             const article = document.querySelector('article:first-child');
+//             //2. 해당 포스트의 id 가져오기
+//             const postId = article.querySelector('.c-Yi7') && article.querySelector('.c-Yi7').href.split('/').slice(-2, -1)[0];
+//             //3. 해당 포스트의 이름 가져오기
+//             const name = article.querySelector('h2') && article.querySelector('h2').textContent;
+//             //4. 해당 포스트의 이미지 가져오기
+//             const img = article.querySelector('.KL4Bh img') && article.querySelector('.KL4Bh img').src;
+//             //5. 해당 포스트의 컨텐츠 가져오기
+//             const content = article.querySelector('.C4VMK > span') && article.querySelector('.C4VMK > span').textContent;
+
+//             return {
+//                 postId, name, img, content, comments,
+//             }
+//         });
+
+//         console.log(newPost);
+    
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+
+
+//==================================================================================//
+//8-4 더보기 버튼과 반복 크롤링
+//스크롤을 계속 내리다 보면 이전 포스트가 삭제되고 새로운 포스트가 리스트에 추가되는 것을 이용한 크롤링
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         //userDataDir에 폴더 경로 지정
+//         let browser = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications'],
+//             userDataDir : 'C:\Users\clnme\AppData\Local\Google\Chrome\User Data\Default',
+//         });
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://www.instagram.com/?hl=ko');
+
+//         if (await page.$('a[href="/zerohch0/"]')) {
+//             console.log('이미 로그인 되어 있습니다.');
+//         } else {
+//             //'facebook으로 로그인' 버튼을 클릭
+//             await page.waitForSelector('button.L3NKy');
+//             await page.click('button.L3NKy');
+//             //facebook 로그인 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             //facebook에서 로그인
+//             await page.waitForSelector('#email');
+//             await page.type('#email', process.env.EMAIL);
+//             await page.type('#pass', process.env.PASSWORD);
+//             await page.waitForSelector('#loginbutton');
+//             await page.click('#loginbutton');
+//             //instagram 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             console.log('로그인 완료');
+//         }
+
+//         //반복해서 10개의 포스트 가져오기
+//         let result = [];
+//         let prevPostId = '';
+//         while(result.length < 0){
+//             //1. 더보기 버튼을 눌러 포스트 전체 가져오기 (있을 때만)
+//             const moreButton = await page.$('button.sXUSN'); // 더보기 버튼 클릭
+//             if (moreButton) {
+//             await page.evaluate((btn) => btn.click(), moreButton);
+//             }
+
+//             //포스트 가져오기
+//             const newPost = await page.evaluate(() => {
+//                 //가져올 포스트 찾기
+//                 const article = document.querySelector('article:first-child');
+//                 //해당 포스트의 id 가져오기
+//                 const postId = article.querySelector('.c-Yi7') && article.querySelector('.c-Yi7').href.split('/').slice(-2, -1)[0];
+//                 //해당 포스트의 이름 가져오기
+//                 const name = article.querySelector('h2') && article.querySelector('h2').textContent;
+//                 //해당 포스트의 이미지 가져오기
+//                 const img = article.querySelector('.KL4Bh img') && article.querySelector('.KL4Bh img').src;
+//                 //해당 포스트의 컨텐츠 가져오기
+//                 const content = article.querySelector('.C4VMK > span') && article.querySelector('.C4VMK > span').textContent;
+
+//                 return {
+//                     postId, name, img, content, comments,
+//                 }
+//             });
+
+//             //2. 여태까지 가져온 적이 없는 포스트라면 저장
+//             //2.1. 이전에 가져온 포스트와 다른 것인가?
+//             if (newPost.postId !== prevPostId) {
+//                 //2.1. 가져온 포스트가 result에 없는 것이라면 추가
+//                 if(!result.find((v)=>v.postId === newPost.postId)){
+//                     result.push(newPost);
+//                 }
+//             }
+
+//             //3. 이전 포스트를 업데이트
+//             prevPostId = newPost.postId;
+
+//             //4. 다음 컨텐츠를 불러오기 위해 스크롤을 조금씩 내림.
+//             await page.evaluate(() => {
+//                 window.scrollBy(0, 800);
+//             });
+//         }
+    
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//8-5 인스타 하트 클릭과 DB 저장
+//UI가 제대로 작동했는지 네트워크 요청으로 꼭 확인해보길 바란다.(실제로 작동하지 않을 때도 있기 때문에)
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config(); 
+
+// const crawler = async ()=>{
+
+    
+//     try{
+//         await db.sequelize.sync();
+//         //userDataDir에 폴더 경로 지정
+//         let browser = await puppeteer.launch({
+//             headless : false, 
+//             args:['--window-size=1920,1080', '--disable-notifications'],
+//             userDataDir : 'C:\Users\clnme\AppData\Local\Google\Chrome\User Data\Default',
+//         });
+//         let page = await browser.newPage();
+//         await page.setViewport({
+//             width : 1080,
+//             height : 1080
+//         });
+//         await page.goto('https://www.instagram.com/?hl=ko');
+
+//         if (await page.$('a[href="/zerohch0/"]')) {
+//             console.log('이미 로그인 되어 있습니다.');
+//         } else {
+//             //'facebook으로 로그인' 버튼을 클릭
+//             await page.waitForSelector('button.L3NKy');
+//             await page.click('button.L3NKy');
+//             //facebook 로그인 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             //facebook에서 로그인
+//             await page.waitForSelector('#email');
+//             await page.type('#email', process.env.EMAIL);
+//             await page.type('#pass', process.env.PASSWORD);
+//             await page.waitForSelector('#loginbutton');
+//             await page.click('#loginbutton');
+//             //instagram 페이지로 리다이렉트되는 것을 기다린다.
+//             await page.waitForNavigation();
+//             console.log('로그인 완료');
+//         }
+
+//         //반복해서 10개의 포스트 가져오기
+//         let result = [];
+//         let prevPostId = '';
+//         while(result.length < 0){
+//             //더보기 버튼을 눌러 포스트 전체 가져오기 (있을 때만)
+//             const moreButton = await page.$('button.sXUSN'); // 더보기 버튼 클릭
+//             if (moreButton) {
+//             await page.evaluate((btn) => btn.click(), moreButton);
+//             }
+
+//             //포스트 가져오기
+//             const newPost = await page.evaluate(() => {
+//                 //가져올 포스트 찾기
+//                 const article = document.querySelector('article:first-child');
+//                 //해당 포스트의 id 가져오기
+//                 const postId = article.querySelector('.c-Yi7') && article.querySelector('.c-Yi7').href.split('/').slice(-2, -1)[0];
+//                 //해당 포스트의 이름 가져오기
+//                 const name = article.querySelector('h2') && article.querySelector('h2').textContent;
+//                 //해당 포스트의 이미지 가져오기
+//                 const img = article.querySelector('.KL4Bh img') && article.querySelector('.KL4Bh img').src;
+//                 //해당 포스트의 컨텐츠 가져오기
+//                 const content = article.querySelector('.C4VMK > span') && article.querySelector('.C4VMK > span').textContent;
+
+//                 return {
+//                     postId, name, img, content, comments,
+//                 }
+//             });
+
+//             //여태까지 가져온 적이 없는 포스트라면 저장
+//             //이전에 가져온 포스트와 다른 것인가?
+//             if (newPost.postId !== prevPostId) {
+//                 //가져온 포스트가 result에 없는 것인가?
+//                 if(!result.find((v)=>v.postId === newPost.postId)){
+//                     //3. 이전에 DB에 저장된 적이 없다면 result에 추가
+//                     const exist = await db.Instagram.findOne({ where: { postId: newPost.postId } });
+//                     if (!exist) {
+//                       result.push(newPost);
+//                     }
+//                 }
+//             }
+
+//             //1. 좋아요 버튼 누르기
+//             await page.evaluate(() => {
+//                 const article = document.querySelector('article:first-child');
+//                 const heartBtn = article.querySelector('.coreSpriteHeartOpen span');
+//                 //1.1. 채워지지 않은 하트라면 좋아요 버튼 누르기
+//                 if (heartBtn.className.includes('outline')) {
+//                   heartBtn.click();
+//                 }
+//             });
+
+//             //이전 포스트를 업데이트
+//             prevPostId = newPost.postId;
+
+//             //다음 컨텐츠를 불러오기 위해 스크롤을 조금씩 내림.
+//             await page.evaluate(() => {
+//                 window.scrollBy(0, 800);
+//             });
+//         }
+    
+//         //2. DB에 저장
+//         await Promise.all(result.map((r) => {
+//             return db.Instagram.create({
+//               postId: r.postId,
+//               media: r.img,
+//               writer: r.name,
+//               content: r.content,
+//             });
+//         }));
+
+//         await db.sequelize.close();
+//     }catch(e){
+//         console.error(e);
+//     }
+// };
+
+// crawler();
+
+//==================================================================================//
+//8-6 보너스 인스타그램 검색하기
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// const db = require('./models');
+// dotenv.config();
+
+// const crawler = async () => {
+//   try {
+//     await db.sequelize.sync();
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications'],
+//       userDataDir: 'C:\Users\zerocho\AppData\Local\Google\Chrome\User Data',
+//     });
+//     const page = await browser.newPage();
+//     await page.setViewport({
+//       width: 1080,
+//       height: 1080,
+//     });
+//     await page.goto('https://instagram.com');
+//     if (await page.$('a[href="/zerohch0/"]')) {
+//       console.log('이미 로그인 되어 있습니다.');
+//     } else {
+//       await page.waitForSelector('button.L3NKy'); // facebook으로 로그인 버튼
+//       await page.click('button.L3NKy');
+//       await page.waitForNavigation(); // facebook 로그인으로 넘어가는 것을 기다려요
+//       await page.waitForSelector('#email');
+//       await page.type('#email', process.env.EMAIL);
+//       await page.type('#pass', process.env.PASSWORD);
+//       await page.waitForSelector('#loginbutton');
+//       await page.click('#loginbutton');
+//       await page.waitForNavigation();
+//       console.log('로그인을 완료했습니다.');
+//     }
+
+//     //1. 검색어 입력
+//     await page.waitForSelector('input.XTCLo');
+//     await page.click('input.XTCLo');
+//     await page.keyboard.type('냥스타그램');
+//     //2. 검색어에 연관된 navigation이 뜰 때 까지 기다리기
+//     await page.waitForSelector('.drKGC');
+//     //3. navigation list의 첫번째 결과의 url가져오기
+//     const href = await page.evaluate(() => {
+//       return document.querySelector('.drKGC a:first-child').href;
+//     });
+//     //4. 찾은 url로 이동
+//     await page.goto(href);
+
+//     // console.log(result.length);
+//     // await page.close();
+//     // await browser.close();
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
+
+// crawler();
+
+//==================================================================================//
+//8-7 보너스 인스타그램 댓글 가져오기
+
+//@ ||, && 연산에 대해 알아보자 (https://4urdev.tistory.com/13)
+
 const puppeteer = require('puppeteer');
 const dotenv = require('dotenv');
 
@@ -1250,69 +1988,89 @@ const crawler = async ()=>{
     
     try{
         await db.sequelize.sync();
-        let browser = await puppeteer.launch({headless : false, args:['--window-size=1920,1080', '--disable-notifications']});
+        //userDataDir에 폴더 경로 지정
+        let browser = await puppeteer.launch({
+            headless : false, 
+            args:['--window-size=1920,1080', '--disable-notifications'],
+            userDataDir : 'C:\Users\clnme\AppData\Local\Google\Chrome\User Data\Default',
+        });
         let page = await browser.newPage();
         await page.setViewport({
             width : 1080,
             height : 1080
         });
-        await page.goto('https://facebook.com');
-        //1. 페이스 북 로그인
-        await page.type('#email', process.env.EMAIL);
-        await page.type('#pass', process.env.PASSWORD);
-        await page.click('._42ft._4jy0._6lth._4jy6._4jy1.selected._51sy');
-        await page.waitForResponse((response)=>{            
-            return response.url().includes('login_attempt');
-        });
-        await page.keyboard.press('Escape');
-        
-        let result = [];
-        while(result.length < 10){
+        await page.goto('https://www.instagram.com/?hl=ko');
 
-            //2. 포스트가 띄워질 때까지 기다린다.
-            await page.waitForSelector('[id^=hyperfeed_story_id]:first-child');
-            //3. 포스트에 접근해 아이디, 게시글, 작성자, 이미지를 가져온다.
-            const newPost = await page.evaluate(()=>{
-                //3.1. 첫번째 포스트 가져오기
-                const firtstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
-                //3.2. 작성자 이름 가져오기
-                const name = firtstFeed.querySelector('.fwb.fcg') && firtstFeed.querySelector('.fwb.fcg').textContent;
-                //3.3. 포스트 내용 가져오기
-                const content = firtstFeed.querySelector('.userContent') && firtstFeed.querySelector('.userContent').textContent;
-                //3.4. 포스트 아이디 가져오기
-                //split : 구분자로 여러 개의 문자열로 나눈다. (['', ''] 형식으로 반환)
-                //slice : 매개변수로 index값인 begin과 end를 받는다. begin부터 end까지 얕은 복사하여 새로운 배열 객체 반환.(-1은 배열의 끝이다.);
-                const postId = firtstFeed.id.split('_').slice(-1)[0];
-                //3.5. 이미지 url 가져오기
-                const img = firstFeed.querySelector('[class=mtm] img') && firstFeed.querySelector('[class=mtm] img').src;
-                return {
-                    name, content, postId, img,
-                }
-            });
-
-            //4. 포스트에 좋아요 버튼 누르기
-            const likeBtn = await page.$('[id^=hyperfeed_story_id]:first-child._666k a');
-            await page.evaluate((like)=>{
-                //sponsor.textContent에 해당 문자열이 있으면 광고이므로 좋아요를 누르지 않는다.
-                const sponsor = document.querySelector('[id^=hyperfeed_story_id]:first-child')
-                .textContent.includes('SpSpSononSsosoSredredSSS');
-
-                if(!sponsor && like.getAttribute('aria-pressed') === 'false'){
-                    like.click();
-                }else if(sponsor && like.getAttribute('aria-pressed') === 'true'){
-                    like.click();
-                }
-            }, likeBtn);
-
-            await page.waitFor(1000);
-            //5. 컨텐츠를 다 가져온 first-child 포스트는 삭제한다.
-            await page.evaluate(()=>{
-                const firstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
-                firstFeed.parentNode.removeChild(firstFeed);
-            });
-            await page.waitFor(1000);
+        if (await page.$('a[href="/zerohch0/"]')) {
+            console.log('이미 로그인 되어 있습니다.');
+        } else {
+            //'facebook으로 로그인' 버튼을 클릭
+            await page.waitForSelector('button.L3NKy');
+            await page.click('button.L3NKy');
+            //facebook 로그인 페이지로 리다이렉트되는 것을 기다린다.
+            await page.waitForNavigation();
+            //facebook에서 로그인
+            await page.waitForSelector('#email');
+            await page.type('#email', process.env.EMAIL);
+            await page.type('#pass', process.env.PASSWORD);
+            await page.waitForSelector('#loginbutton');
+            await page.click('#loginbutton');
+            //instagram 페이지로 리다이렉트되는 것을 기다린다.
+            await page.waitForNavigation();
+            console.log('로그인 완료');
         }
 
+        //반복해서 10개의 포스트 가져오기
+        let result = [];
+        let prevPostId = '';
+        while(result.length < 0){
+            //더보기 버튼을 눌러 포스트 전체 가져오기 (있을 때만)
+            const moreButton = await page.$('button.sXUSN'); // 더보기 버튼 클릭
+            if (moreButton) {
+            await page.evaluate((btn) => btn.click(), moreButton);
+            }
+
+            //포스트 가져오기
+            const newPost = await page.evaluate(() => {
+                //가져올 포스트 찾기
+                const article = document.querySelector('article:first-child');
+                //해당 포스트의 id 가져오기
+                const postId = article.querySelector('.c-Yi7') && article.querySelector('.c-Yi7').href.split('/').slice(-2, -1)[0];
+                //1. 댓글들 가져오기
+                //1.1. 댓글이 들어 있는 리스트 목록들 가져오기
+                const commentTags = article.querySelectorAll('ul li:not(:first-child)');
+                //1.2. 목록들에서 댓글 text만 추출하여 comments에 추가하기
+                let comments = [];
+                commentTags.forEach((c) => {
+                    const name = c.querySelector('.C4VMK h3') && c.querySelector('.C4VMK h3').textContent;
+                    const comment = c.querySelector('.C4VMK > span') && c.querySelector('.C4VMK > span').textContent;
+                    comments.push({
+                    name, comment,
+                    });
+                });
+
+                return {
+                    postId, comments
+                }
+            });
+
+            //여태까지 가져온 적이 없는 포스트라면 저장
+            //이전에 가져온 포스트와 다른 것인가?
+            if (newPost.postId !== prevPostId) {
+                //가져온 포스트가 result에 없는 것인가?
+                if(!result.find((v)=>v.postId === newPost.postId)){
+                    result.push(newPost);
+                }
+            }
+
+            //이전 포스트를 업데이트
+            prevPostId = newPost.postId;
+
+            //다음 컨텐츠를 불러오기 위해 스크롤을 조금씩 내림.
+            await page.evaluate(() => {
+                window.scrollBy(0, 800);
+            });
+        }
 
         await db.sequelize.close();
     }catch(e){
@@ -1323,4 +2081,3 @@ const crawler = async ()=>{
 crawler();
 
 
-//==================================================================================//
