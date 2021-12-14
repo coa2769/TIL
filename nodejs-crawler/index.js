@@ -2446,75 +2446,384 @@ Postman의 Preview로 하면을 확인하면 크롤러가 보게되는 화면을
 
 
 //==================================================================================//
-//10-1 
+//10-1 페이지 네이션 크롤링 준비
+//- 주소로 내가 원하는 페이지에 들어갈 수 있다면 주소를 통해 들어가자.(굳이 동작을 구현할 필요 없다)
+//- 다음 페이지로 넘어갔을 때 네트워크 통신이 초기화되면 싱글 페이지 애플리케이션이 아니다.
+//- 다음 페이지로 넘어갔을 때 네트워크 통신이 초기화되지 않는다면 싱글 페이지 애플리케이션으로 구현된 것이다.
+// const puppeteer = require('puppeteer');
 
+// const crawler = async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+//     });
 
+//     //1. 주소를 이용하여 페이지를 넘어간다.
+//     //싱글페이지 애플리케이션이 아니기 때문에 가능하다.
+//     await Promise.all([1,2,3,4,5,6,7,8,9,10].map(async (v) => {
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//           width: 1080,
+//           height: 1080,
+//         });
+    
+//         const keyword = 'mouse';
+//         await page.goto(`https://www.amazon.com/s?k=${keyword}&page=${v}`, {
+//           waitUntil: 'networkidle0',
+//         });
+//     }));
+    
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
 
-
-
-//==================================================================================//
-//10-2
-
-
-
-
-
-
-
-
-//==================================================================================//
-//10-3 
-
-
-
-
-
-
-
-
-
-//==================================================================================//
-//10-4 
-
-
-
-
-
-
-
-
+// crawler();
 
 
 //==================================================================================//
-//10-5 
+//10-2 아마존 크롤링
+// const puppeteer = require('puppeteer');
 
+// const crawler = async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+//     });
 
+//     let result = [];
 
+//     //주소를 이용하여 페이지를 넘어간다.
+//     //싱글페이지 애플리케이션이 아니기 때문에 가능하다.
+//     await Promise.all([1,2,3,4,5,6,7,8,9,10].map(async (v) => {
+//         const page = await browser.newPage();
+//         await page.setViewport({
+//           width: 1080,
+//           height: 1080,
+//         });
+    
+//         const keyword = 'mouse';
+//         await page.goto(`https://www.amazon.com/s?k=${keyword}&page=${v}`, {
+//           waitUntil: 'networkidle0',
+//         });
 
+//         const r = await page.evaluate(() => {
+//             //1. 판매 되는 목록 가져오기
+//             const tags = document.querySelectorAll('.s-result-list > div');
+//             const result = [];
+//             tags.forEach((t) => {
+//                 //2. 판매 되는 물건의 이름과 가격 가져오기
+//                 result.push({
+//                     name: t && t.querySelector('h5') && t.querySelector('h5').textContent.trim(),
+//                     price: t && t.querySelector('.a-price') && t.querySelector('.a-price').textContent.trim(),
+//                 });
+//             });
+//             return result;
+//         });
+//         //3. 이전 목록들 뒤에 이번 페이지의 목록들을 붙이기
+//         result = result.concat(r);
 
+//     }));
+    
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
 
-
-
+// crawler();
 
 
 //==================================================================================//
-//10-6 
+//10-3 깃허브 크롤링
 
+// const puppeteer = require('puppeteer');
 
+// const crawler = async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+//     });
+//     const page = await browser.newPage();
+//     await page.setViewport({
+//       width: 1080,
+//       height: 1080,
+//     });
+//     const keyword = 'crawler';
+//     await page.goto(`https://github.com/search?q=${keyword}`, {
+//       waitUntil: 'networkidle0',
+//     });
 
+//     let result = [];
+//     let pageNum = 1;
+//     //5페이지 넘어감
+//     while (pageNum <= 5) {
+//         //1. 원하는 정보 가져오기
+//         const r = await page.evaluate(() => {
+//             const tags = document.querySelectorAll('.repo-list-item');
+//             const result = [];
+//             tags.forEach((t) => {
+//               result.push({
+//                 name: t && t.querySelector('h3') && t.querySelector('h3').textContent.trim(),
+//                 star: t && t.querySelector('.muted-link') && t.querySelector('.muted-link').textContent.trim(),
+//                 lang: t && t.querySelector('.text-gray.flex-auto') && t.querySelector('.text-gray.flex-auto').textContent.trim(),
+//               })
+//             });
+//             return result;
+//         });
+//         result = result.concat(r);
+//         //2. next 버튼을 눌러 다음 페이지로 넘어가기
+//         await page.waitForSelector('.next_page');
+//         await page.click('.next_page');
 
+//         pageNum++;
+//     }
 
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
 
-
-
+// crawler();
 
 
 //==================================================================================//
-//10-7 
+//10-4 깃허브 페이지네이션
+
+// const puppeteer = require('puppeteer');
+
+// const crawler = async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+//     });
+//     const page = await browser.newPage();
+//     await page.setViewport({
+//       width: 1080,
+//       height: 1080,
+//     });
+//     const keyword = 'crawler';
+//     await page.goto(`https://github.com/search?q=${keyword}`, {
+//       waitUntil: 'networkidle0',
+//     });
+
+//     let result = [];
+//     let pageNum = 1;
+//     //5페이지 넘어감
+//     while (pageNum <= 5) {
+//         //원하는 정보 가져오기
+//         const r = await page.evaluate(() => {
+//             const tags = document.querySelectorAll('.repo-list-item');
+//             const result = [];
+//             tags.forEach((t) => {
+//               result.push({
+//                 name: t && t.querySelector('h3') && t.querySelector('h3').textContent.trim(),
+//                 star: t && t.querySelector('.muted-link') && t.querySelector('.muted-link').textContent.trim(),
+//                 lang: t && t.querySelector('.text-gray.flex-auto') && t.querySelector('.text-gray.flex-auto').textContent.trim(),
+//               })
+//             });
+//             return result;
+//         });
+//         result = result.concat(r);
+//         //next 버튼을 눌러 다음 페이지로 넘어가기
+//         await page.waitForSelector('.next_page');
+//         await page.click('.next_page');
+        
+//         //pjax로 테그를 받아와서 페이지를 대체 하므로 해당 응답이 돌아와야 페이지가 제대로 넘어간 것이다.
+//         await page.waitForResponse((response) => {
+//             //해당 문자열로 시작하는 url의 응답이 200일 때 까지 기다린다.
+//             return response.url().startsWith(`https://github.com/search/count?p=${pageNum}`) && response.status() === 200;
+//         });
+
+//         pageNum++;
+//     }
+
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
+
+// crawler();
 
 
+//==================================================================================//
+//10-5 트위터 로그인하기
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// dotenv.config();
+
+// const crawler = async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+//     });
+//     const page = await browser.newPage();
+//     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36');
+//     await page.setViewport({
+//       width: 1080,
+//       height: 1080,
+//     });
+//     await page.goto(`https://twitter.com`, {
+//       waitUntil: 'networkidle0',
+//     });
+//     await page.type('.LoginForm-username input', process.env.EMAIL)
+//     await page.type('.LoginForm-password input', process.env.PASSWORD)
+//     await page.waitForSelector('input[type=submit]');
+//     await page.click('input[type=submit]');
+//     await page.waitForNavigation();
+
+//     // await browser.close();
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
+
+// crawler();
 
 
+//==================================================================================//
+//10-6 트위터 태그 분석하기
+//frame, iframe은 다른 웹사이트의 컨텐츠를 보여주는 테그 이므로 보통의 테그들과 정보를 가져오는 방법이 다르다.
+
+// const puppeteer = require('puppeteer');
+// const dotenv = require('dotenv');
+
+// dotenv.config();
+
+// const crawler = async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: false,
+//       args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+//     });
+//     const page = await browser.newPage();
+//     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36');
+//     await page.setViewport({
+//       width: 1080,
+//       height: 1080,
+//     });
+//     await page.goto(`https://twitter.com`, {
+//       waitUntil: 'networkidle0',
+//     });
+//     await page.type('.LoginForm-username input', process.env.EMAIL)
+//     await page.type('.LoginForm-password input', process.env.PASSWORD)
+//     await page.waitForSelector('input[type=submit]');
+//     await page.click('input[type=submit]');
+//     await page.waitForNavigation();
+
+//     while (await page.$('.js-stream-item')) {
+//         const firstItem = await page.$('.js-stream-item:first-child');
+
+//         //트위터는 스크롤을 내려야 iframe을 로딩한다.
+//         //1. iframe이 들어갈 컨테이너가 있는지 확인
+//         if (await page.$('.js-stream-item:first-child .js-macaw-cards-iframe-container')) {
+//             //2. 스크롤을 내려 iframe을 로드한다.
+//             await page.evaluate(() => {
+//               window.scrollBy(0, 10);
+//             });
+//             console.log('iframe 발견');
+//         }else{
+//             console.log('iframe 없음');
+//             //3. 확인한 포스트 삭제
+//             await page.evaluate((item)=> item.parentNode.removeChild(item), firstItem);
+//         }
+//     }
+
+//     // await browser.close();
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
+
+// crawler();
+
+
+//==================================================================================//
+//10-7 트위터 아이프레임 컴텐츠 가져오기
+//frame은 page와 같은 api를 사용할 수 있다.
+
+const puppeteer = require('puppeteer');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const crawler = async () => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: ['--window-size=1920,1080', '--disable-notifications', '--no-sandbox'],
+    });
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36');
+    await page.setViewport({
+      width: 1080,
+      height: 1080,
+    });
+    await page.goto(`https://twitter.com`, {
+      waitUntil: 'networkidle0',
+    });
+    await page.type('.LoginForm-username input', process.env.EMAIL)
+    await page.type('.LoginForm-password input', process.env.PASSWORD)
+    await page.waitForSelector('input[type=submit]');
+    await page.click('input[type=submit]');
+    await page.waitForNavigation();
+
+    //1. .js-stream-item가 없을 때 까지 반복
+    while (await page.$('.js-stream-item')) {
+        //2. 첫번째 item 가져오기
+        const firstItem = await page.$('.js-stream-item:first-child');
+
+        //트위터는 스크롤을 내려야 iframe을 로딩한다.
+        //3. iframe이 들어갈 컨테이너가 있는지 확인
+        if (await page.$('.js-stream-item:first-child .js-macaw-cards-iframe-container')) {
+            //4. tweetId 가져오기
+            const tweetId = await page.evaluate((item) => {
+                //dataset-item-id 속성에 있음
+                return item.dataset.itemId;
+            }, firstItem);
+            
+            //5. 스크롤을 내려 iframe을 로드한다.
+            await page.evaluate(() => {
+              window.scrollBy(0, 10);
+            });
+            await page.waitForSelector('.js-stream-item:first-child iframe');
+
+            //6. 페이지의 frame 중 url에 해당 tweetId가 들어간 것을 찾는다.
+            const iframe = await page.frames().find((frame) => frame.url().includes(tweetId));
+            if (iframe) {
+                //7. iframe의 정보 가져오기
+                //iframe도 별도의 웹페이지 이기 때문에 page의 함수들을 그대로 사용할 수 있다.
+                const result = await iframe.evaluate(() => {
+                    return {
+                      title: document.querySelector('h2') && document.querySelector('h2').textContent,
+                    }
+                });
+                console.log(result);
+            }
+
+            //8. firstitem은 삭제 
+            await page.evaluate((item) => item.parentNode.removeChild(item), firstItem);
+            await page.evaluate(() => {
+              window.scrollBy(0, 10);
+            });
+            await page.waitForSelector('.js-stream-item')
+            
+        }
+    }
+
+    // await browser.close();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+crawler();
 
 
 
