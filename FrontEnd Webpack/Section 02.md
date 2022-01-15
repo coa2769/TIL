@@ -45,9 +45,13 @@ Is this OK? (yes)
     - 기본 값 그대로 바로 `package.json`이 생성된다.
 
 # NPM 설치 명령어 - install
-특정 라이브러리를 설치하는 명령어.
-- `node_modules` 폴더가 생성된다.
-    - 설치된 라이브러리는 `node_modules` 폴더 아래에 생성된다.
+> npm install [라이브러리 이름] --save-prod
+
+특정 라이브러리를 설치하는 명령어. (--save-prod는 기본 옵션이므로 생략이 가능하다.)
+
+- 첫 install에서는 `node_modules` 폴더가 생성된다.
+- 설치된 라이브러리는 `node_modules` 폴더 아래에 생성된다.
+- 설치된 라이브러리를 이용하는 데 필요한 다른 라이브러리들이 함께 설치된다.
 - `package.json`의 dependencies에 설치된 라이브러리가 버전과 함께 표시된다.
 ```json
 "dependencies": {
