@@ -106,7 +106,8 @@ type속성의 기본 값으로 submit으로 되어 있다.
 
 선택 항목을 만드는데 사용된다.
 
-<select>, <datalist>, <optgroup> 내부에 포함하게 된다.
+`<select>, <datalist>, <optgroup>` 내부에 포함하게 된다.
+
 
 [- HTML: Hypertext Markup Language | MDN](https://developer.mozilla.org/ko/docs/Web/HTML/Element/option)
 
