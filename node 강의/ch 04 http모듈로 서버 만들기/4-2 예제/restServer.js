@@ -25,48 +25,48 @@ http.createServer(async(req, res)=>{
             }catch(err){
                 //주소에 해당하는 라우트를 못 찾았다는 404 Not Found error 발생
             }
-        }
-        // else if(req.method === 'POST'){
-        //     if(req.url === '/user'){
-        //         let body = '';
-        //         //요청의 body를 stream 형식으로 받음(요청에 data가 있을 경우 처리를 위한 )
-        //         req.on('data', (data)=>{
-        //             console.log('data++');
-        //             body += data;
-        //         });
-        //         //요청의 body를 다 받은 후 실행됨
-        //         return req.on('end', ()=>{
-        //             console.log('POST 본문(Body) : ', body);
-        //             const { name } = JSON.parse(body);
-        //             const id = Date.not();
-        //             users[id] = name;
-        //             res.writeHead(201, { 'Content-Type' : 'text/plain; charset=utf-8'});
-        //             res.end('ok');
-        //         });
-        //     }
-        // }else if( req.method === 'PUT'){
-        //     if(req.url.startsWith('/user/')){
-        //         const key = req.url.split('/')[2];
-        //         let body = '';
-        //         req.on('data', (data)=>{
-        //             body += data;
-        //         });
+        }else if(req.method === 'POST'){
+            if(req.url === '/user'){
+                let body = '';
+                //!!goekd 'data', 'end'이벤트는 stream과 연관 있으므로 3장의 파일시스템 내용을 보면 된다.
+                //요청의 body를 stream 형식으로 받음(요청에 data가 있을 경우 처리를 위한 )
+                req.on('data', (data)=>{
+                    console.log('data++');
+                    body += data;
+                });
+                //요청의 body를 다 받은 후 실행됨
+                return req.on('end', ()=>{
+                    console.log('POST 본문(Body) : ', body);
+                    const { name } = JSON.parse(body);
+                    const id = Date.now();
+                    users[id] = name;
+                    res.writeHead(201, { 'Content-Type' : 'text/plain; charset=utf-8'});
+                    res.end('ok');
+                });
+            }
+        }else if( req.method === 'PUT'){
+            if(req.url.startsWith('/user/')){
+                const key = req.url.split('/')[2];
+                let body = '';
+                req.on('data', (data)=>{
+                    body += data;
+                });
                 
-        //         return req.on('end', ()=>{
-        //             console.log('PUT 본문(Body) : ', body);
-        //             users[key] = JSON.parse(body).name;
-        //             res.writeHead(200, { 'Content-Type' : 'text/plain; charset=utf-8'});
-        //             return res.end('ok');
-        //         });
-        //     }
-        // }else if(req.method === 'DELETE'){
-        //     if(req.url.startsWith('/user/')){
-        //         const key = req.url.split('/')[2];
-        //         delete users[key];
-        //         res.writeHead(200, {'Content-Type' : 'text/plain; charset=utf-8'});
-        //         return res.end('ok');
-        //     }
-        // }
+                return req.on('end', ()=>{
+                    console.log('PUT 본문(Body) : ', body);
+                    users[key] = JSON.parse(body).name;
+                    res.writeHead(200, { 'Content-Type' : 'text/plain; charset=utf-8'});
+                    return res.end('ok');
+                });
+            }
+        }else if(req.method === 'DELETE'){
+            if(req.url.startsWith('/user/')){
+                const key = req.url.split('/')[2];
+                delete users[key];
+                res.writeHead(200, {'Content-Type' : 'text/plain; charset=utf-8'});
+                return res.end('ok');
+            }
+        }
         res.writeHead(404);
         return res.end('NOT FOUND');
 
