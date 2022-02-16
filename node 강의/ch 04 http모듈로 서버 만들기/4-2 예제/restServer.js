@@ -27,6 +27,10 @@ http.createServer(async(req, res)=>{
             }
         }else if(req.method === 'POST'){
             if(req.url === '/user'){
+                //post의 body를 파일이라고 생각했을 때 해당 파일을 읽는 것을 백그라운드에 위임한다.
+                //data -> 조금씩 조금씩 읽어온 파일을 처리할 때 callback호출
+                //end -> 파일 읽기가 끝났을 때 callback호출
+                //이 이벤트들은 지정한 파일을 다 읽어 올 때 까지 유효하다.
                 let body = '';
                 //!!goekd 'data', 'end'이벤트는 stream과 연관 있으므로 3장의 파일시스템 내용을 보면 된다.
                 //요청의 body를 stream 형식으로 받음(요청에 data가 있을 경우 처리를 위한 )

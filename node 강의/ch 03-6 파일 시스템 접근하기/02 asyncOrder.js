@@ -2,19 +2,19 @@ const fs = require('fs');
 
 //비동기 방식으로 하되 순서를 유지하고 싶을 때 이렇게 한다.
 console.log('시작');
-fs.readFile('./readme2.txt', (err, data)=>{
+fs.readFile('./02 readme2.txt', (err, data)=>{
     if(err){
         throw err;
     }
     console.log('1번', data.toString());
 
-    fs.readFile('./readme2.txt', (err, data)=>{
+    fs.readFile('./02 readme2.txt', (err, data)=>{
         if(err){
             throw err;
         }
         console.log('2번', data.toString());
 
-        fs.readFile('./readme2.txt', (err, data)=>{
+        fs.readFile('./02 readme2.txt', (err, data)=>{
             if(err){
                 throw err;
             }

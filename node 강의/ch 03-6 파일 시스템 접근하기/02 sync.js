@@ -1,10 +1,10 @@
 const fs = require('fs');
 
 console.log('시작');
-let data = fs.readFileSync('./readme2.txt');
+let data = fs.readFileSync('./02 readme2.txt');
 console.log('1번', data.toString());
-data = fs.readFileSync('./readme2.txt');
+data = fs.readFileSync('./02 readme2.txt');
 console.log('2번', data.toString());
-data = fs.readFileSync('./readme2.txt');
+data = fs.readFileSync('./02 readme2.txt');
 console.log('3번', data.toString());
 console.log('끝');
