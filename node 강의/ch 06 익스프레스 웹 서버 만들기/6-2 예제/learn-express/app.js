@@ -1,72 +1,60 @@
+const multer = require('multer');
+const fs = require('fs');
 const express = require('express');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const dotenv = require('dotenv');
 const path = require('path');
 
 //.env를 읽어 설정 객체를 만든다.
+const dotenv = require('dotenv');
 dotenv.config();
 
+//express 생성
 const app = express();
-
 app.set('port', process.env.PORT || 3000);
 
-//(req, res, next)=>{}가 패키지의 내부에 있으므로 선언하지 않아도 된다.
-app.use('/', express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(express.urlencoded({extended:false}));
-app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(session({
-    resave : false,
-    saveUninitialized : false,
-    secret : process.env.COOKIE_SECRET,
-    cookie : {
-        httpOnly : true,
-        secure : false,
-    },
-    name : 'sesstion-cookie',
-}));
+try{
+    fs.readdirSync('uploads');
+}catch(err){
+    console.error('uploads폴더가 없어 uploads폴더를 생성합니다.');
+    fs.mkdirSync('uploads');
+}
 
-//morgan 추가
-app.use(morgan('dev'));
-
-app.use((req, res, next)=>{
-    console.log('모든 요청에 다 실행됩니다.');
-    next();
+const upload = multer({
+    storage : multer.diskStorage({
+        destination(req, file, done){
+            done(null, 'uploads/');
+        },
+        filename(req, file, done){
+            const ext = path.extname(file.originalname);
+            done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+        },
+    }),
+    limits : {fileSize : 5 * 1024 * 1024},
 });
 
-//expres 내부의 static 추가
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/multipart', express.static(path.join(__dirname, 'public/multipart.html')));
 
-//body-parser 추가
-app.use(express.json());
-app.use(express.urlencoded({ extended : false }));
-
-//raw와 text를 다루기 위해서는 body-parser 설치가 필요하다.
-const bodyParser = require('body-parser');
-app.use(bodyParser.raw());
-app.use(bodyParser.text());
-
-//cookie-parser 추가
-// app.use(cookieParser(비밀키))
-
-
-
-app.get('/', (req, res, next)=>{
-    console.log('GET / 요청에서만 실행됩니다.');
-    next(); //이게 호출되어야 다음 미들웨어로 넘어간다.
-},(req, res)=>{
-    throw new Error('에러는 에러 처리 미들웨어로 갑니다.');
+//파일을 하나만 업로드 하는 경우 single 미들웨어를 이용한다.
+//single함수에는 input tag의 name이 입력된다.
+app.post('/upload', upload.single('image'), (req, res)=>{
+    console.log(req.file, req.body);
+    res.send('ok');
 });
-
-//에러 처리 미들웨어
-app.use((err, req, res, next)=>{
-    console.error(err);
-    res.status(500).send(err.message);
+//여러 파일을 업로드하는 경우
+app.post('/upload2', upload.array('many'), (req, res)=>{
+    console.log(req.files, req.body);
+    res.send('ok');
+});
+//파일을 여러개 업로드 하지만 input tag나 form데이터의 키가 다른 경우
+app.post('/upload3', upload.fields([{name : 'image1'}, {name : 'image2'}]), (req, res)=>{
+    console.log(req.files, req.body);
+    res.send('ok');
+},);
+//파일을 업로드하지 않고도 멀티파트 형식으로 업로드하는 경우
+app.post('/upload4', upload.none(), (req, res)=>{
+    console.log(req.body);
+    res.send('ok');
 });
 
 app.listen(app.get('port'), ()=>{
     console.log(app.get('port'), '번 포트에서 대기 중');
 });
-
