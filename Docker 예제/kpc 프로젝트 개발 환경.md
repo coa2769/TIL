@@ -11,8 +11,8 @@ ftp로 빌드된 파일 업로드
 
 ### fcs node 서버
 
-- 빌드된 view 파일들은 nginx의 build 폴더에 있는다.
-  - nginx가 빌드된 view파일을 배포해준다.
+- **빌드된 view 파일들은 nginx의 build 폴더에 있는다.**
+  - **nginx가 빌드된 view파일을 배포해준다.**
 - admin, user는 api 애플리케이션이다.
 
 
@@ -35,7 +35,7 @@ https://ichi.pro/ko/wsl2ui-docker-deseukeutob-pail-siseutem-honhab-munje-1854990
 
 [설치 후 실행 방법](https://www.44bits.io/ko/post/wsl2-install-and-basic-usage)
 
-[공식문서](https://www.google.com/search?q=wsl2+docker&oq=wsl2+docker+&aqs=chrome.0.69i59j0i20i263i512j0i512l3j69i60j69i61j69i60.4293j0j7&sourceid=chrome&ie=UTF-8)
+[공식문서](https://docs.microsoft.com/ko-kr/windows/wsl/tutorials/wsl-containers)
 
 [ms 공식문서](https://docs.microsoft.com/ko-kr/visualstudio/docker/tutorials/use-docker-compose#create-the-compose-file)
 
