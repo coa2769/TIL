@@ -1,0 +1,11 @@
+{
+  "name": "node_mariadb_ex",
+  "version": "0.0.1",
+  "description": "node와 mariadb를 연동하는 예제",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "pys",
+  "license": "ISC"
+}
