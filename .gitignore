@@ -1,6 +1,7 @@
 ## 파일 무시
 nodejs-crawler/config/config.json
 nodejs-crawler/.env
+node 강의/ch 07 MySQL/node_mariadb_ex/.env
 
 ## 폴더 무시
 nodejs-crawler-ori/
@@ -25,4 +26,5 @@ node 강의/ch 06 익스프레스 웹 서버 만들기/6-5 예제/learn-express/
 node 강의/ch 06 익스프레스 웹 서버 만들기/6-6 예제/learn-express/node_modules/
 node 강의/ch 07 MySQL/learn-sequelize/node_modules/
 node 강의/ch 07 MySQL/CRUD_example/node_modules/
+node 강의/ch 07 MySQL/node_mariadb_ex/node_modules/
 Docker 예제/docker/node_modules
