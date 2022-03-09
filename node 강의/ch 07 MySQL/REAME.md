@@ -72,3 +72,31 @@
     ```sql
         SHOW TABLES;
     ```
+
+
+# 트러블 슈팅
+# 4. 그 외 트러블 슈팅
+
+- node.js에서 import 사용하는 방법
+    
+    [Node.js 에서 import/export 사용하기](https://velog.io/@ohzzi/Node.js-%EC%97%90%EC%84%9C-importexport-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0)
+    
+- nvm use 명령어에서 status 1 에러 날때
+    
+    [[Error] nvm use 입력 시 exit status 1 오류](https://velog.io/@jiyeah3108/Error-nvm-use-exit-status-1)
+    
+- ES6에서는 바로 사용할 수 없는 __dirname 사용법
+    
+    [[Tip] ReferenceError: __dirname is not defined](https://codenbike.tistory.com/221)
+    
+- typedi 모듈 사용하는 방법
+    
+    [[Javascript] 의존성주입: TypeDI](https://m.blog.naver.com/sssang97/222037090129)
+    
+- mariadb 사용자 생성(연결할 때 root로 접근이 안되는 듯 하다)
+    
+    [](https://www.codingfactory.net/11336)
+    
+- mariadb 에 접속할 때 주의 할 점
+    - 해당 user가 접근하려는 DB에 권한이 있는지 확인한다.
+    - 해당 user로 다른 client 또는 terminal에서 접속하고 있는지 확인한다.(중복 접속 안됨)

@@ -3,15 +3,18 @@
   "version": "0.0.1",
   "description": "node와 mariadb를 연동하는 예제",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-    "start" : "nodemon app"
+    "start": "nodemon app"
   },
   "author": "pys",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mariadb": "^3.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "typedi": "^0.10.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
