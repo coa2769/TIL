@@ -1,15 +1,18 @@
 import express from "express";
-import path from "path";
 import dotenv from 'dotenv';
 import morgan from "morgan";
 import { Container } from 'typedi';
+// import ejs from 'ejs';
+
+// import path from "path";
+// const __dirname = path.resolve();
 
 //service
 import commentService from "./services/commentService.js";
 import userService from "./services/userServices.js";
 
 //라우터
-import indexRouter from './routes/index.js';
+// import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import commentsRouter from './routes/comments.js';
 
@@ -36,12 +39,23 @@ app.use((req, res, next)=>{
 // const __dirname = path.resolve();
 // app.use('/', express.static(path.join(__dirname, 'public')));
 
+//== 이게 빌드된 vue frotend를 배포해준다. ==
+//서버가 읽을 수 있도록 HTML의 위치를 정의
+// app.set('views', __dirname + 'public');
+
+//서버가 HTML 랜더링할 때 EJS엔진을 사용하도록 설정
+// app.set('view engine', 'ejs');
+// app.engine('html', ejs.renderFile);
+
+app.use(express.static('public'));
+//==========================================================
+
 //injection (typedi를 사용하기 위한 사전 준비)
 Container.set("commentService", new commentService);
 Container.set("userService", new userService);
 
 //라우터 등록
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/comments', commentsRouter);
 
