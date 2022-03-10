@@ -22,20 +22,18 @@ router.get('/', async(req, res, next)=>{
 router.post('/', async(req, res, next)=>{
     try{
         //payload에서 추출
-        const { name, age, married } = req;
-        // console.log(name);
+        const { name, age, married } = req.body;
         //사용 인스턴스 초기화
         const userServiceInstance = Container.get("userService");
-        console.log(userServiceInstance);
         //user 정보 생성하기
-        const user = await userServiceInstance.addUser({
+        await userServiceInstance.addUser({
             name, age, married
         });
-
-        console.log(user);
+        //user 정보 리스트 가져오기
+        let users = await userServiceInstance.getUsers({});
 
         //응답 보내기
-        res.status(201).json(user);
+        res.status(201).json(users);
 
     }catch(err){
         console.error(err);
@@ -46,9 +44,10 @@ router.post('/', async(req, res, next)=>{
 router.get('/:id/comments', async(req, res, next)=>{
     try{
         //파라미터 추출
-        const { id } = req.body.id;
+        const { id } = req.params;
+        console.log(id);
         //사용 인스턴스 초기화
-        const userServiceInstance = Container.get(userService);
+        const userServiceInstance = Container.get("userService");
         //특정 user의 comments 가져오기
         const comments = await userServiceInstance.getUserComments({ id });
         //응답 보내기

@@ -1,6 +1,5 @@
 import express from 'express';
 import { Container } from 'typedi';
-import commentService from '../services/commentService.js';
 
 const router = express.Router();
 
@@ -9,11 +8,14 @@ router.post('/', async(req, res, next)=>{
         //payload 추출
         const { id, comment } = req.body;
         //인스턴스 초기화
-        const commentServiceInstance = Container.get(commentService);
+        const commentServiceInstance = Container.get("commentService");
+        const userServiceInstance = Container.get("userService");
         //comment 생성
-        const newComment = await commentServiceInstance.addComment({ id, comment });
+        await commentServiceInstance.addComment({ id, comment });
+        //해당 commenter의 comment를 모두 가져온다.
+        let comments = await userServiceInstance.getUserComments({ id });
         //응답 전송
-        res.status(201).json(newComment);
+        res.status(201).json(comments);
     }catch(err){
         console.error(err);
         next(err);
@@ -23,15 +25,17 @@ router.post('/', async(req, res, next)=>{
 router.put('/:id', async(req, res, next)=>{
     try{
         //파라미터 추출
-        const { id } = req.params;
+        const { id } = req.params; //comment의 id
         //payload 추출
-        const { comment } = req.body;
+        const { comment, commenter } = req.body;
         //인스턴스 초기화
-        const commentServiceInstance = Container.get(commentService);
+        const commentServiceInstance = Container.get("commentService");
+        const userServiceInstance = Container.get("userService");
         //comment 수정
-        const result = await commentServiceInstance.modifyComment({id, comment});
+        await commentServiceInstance.modifyComment({id, comment});
+        let comments = await userServiceInstance.getUserComments({ id : commenter });
         //응답 전송
-        res.json(result);
+        res.status(201).json(comments);
     }catch(err){
         console.error(err);
         next(err);
@@ -42,12 +46,16 @@ router.delete('/:id', async(req, res, next)=>{
     try{
         //파라미터 추출
         const { id } = req.params;
+        const { commenter } = req.body;
         //인스턴스 초기화
-        const commentServiceInstance = Container.get(commentService);
+        const commentServiceInstance = Container.get("commentService");
+        const userServiceInstance = Container.get("userService");
         //comment 삭제
-        const result = await commentServiceInstance.deleteComment({id});
+        await commentServiceInstance.deleteComment({id});
+        //comments 가져오기
+        let comments = await userServiceInstance.getUserComments({ id:commenter });
         //응답 전송
-        res.json(result);
+        res.status(201).json(comments);
     }catch(err){
         console.error(err);
         next(err);

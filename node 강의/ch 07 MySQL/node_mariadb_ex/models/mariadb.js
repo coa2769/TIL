@@ -26,10 +26,10 @@ const createQuery = (method, ob)=>{
       case "insertUser":
         query = `
         INSERT INTO
-        users(name, age, married)
-        VALUES(?,?,?)
+        users(name, age, married, comment)
+        VALUES(?,?,?,?)
         `;
-        values = [ob.name, ob.age, ob.married ];
+        values = [ob.name, ob.age, ob.married, null ];
         break;
       case "selectUsers":
         query=`
