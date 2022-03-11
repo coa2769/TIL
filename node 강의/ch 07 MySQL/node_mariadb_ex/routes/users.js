@@ -1,6 +1,5 @@
 import express from 'express';
 import { Container } from 'typedi';
-import userService from '../services/userServices.js';
 
 const router = express.Router();
 
@@ -29,11 +28,9 @@ router.post('/', async(req, res, next)=>{
         await userServiceInstance.addUser({
             name, age, married
         });
-        //user 정보 리스트 가져오기
-        let users = await userServiceInstance.getUsers({});
 
         //응답 보내기
-        res.status(201).json(users);
+        res.status(201).end();
 
     }catch(err){
         console.error(err);
