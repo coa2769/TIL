@@ -1,11 +1,11 @@
 import './App.css';
-import MyComponent from './MyComponent';
-
+// import Say from './component/Say';
+import EventPractice from './components/EventPractice';
 
 const App = () => {
   return (
     <div>
-      <MyComponent name="React"></MyComponent>
+      <EventPractice></EventPractice>
     </div>
   )
 }
