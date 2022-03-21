@@ -1,39 +1,28 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 // import Say from './component/Say';
 // import EventPractice from './components/EventPractice';
 // import ValidationSample from './components/ValidationSample';
 // import ScrollBox from './components/ScrollBox';
-import LifeCycleSample from './components/LifeCycleSample';
-import ErrorBoundary from './components/ErrorBoundary';
+// import LifeCycleSample from './components/LifeCycleSample';
+// import ErrorBoundary from './components/ErrorBoundary';
+import Info from './components/Info';
 
-function getRandomColor(){
-  return '#' + Math.floor(Math.random() * 16777215).toString(16);
-}
 
-class App extends Component{
-  state = {
-    color : '#000000'
-  }
-
-  handleClick = ()=>{
-    this.setState({
-      color : getRandomColor()
-    });
-  }
-
-  render(){
-    return (
-      <div>
-        <button onClick={this.handleClick}>랜덤 색상</button>
-        <ErrorBoundary>
-          <LifeCycleSample color={this.state.color}></LifeCycleSample>
-        </ErrorBoundary>
-        {/* <ScrollBox ref={(ref)=>this.scrollBox=ref}></ScrollBox> */}
-        {/* <button onClick={()=>this.scrollBox.scrollToBottom()}>맨 밑으로</button> */}
-      </div>
-    )
-  }
+const App = ()=>{
+  const [visible, setVisible] = useState(false);
+  return(
+    <div>
+      <button
+        onClick={()=>{
+          setVisible(!visible);
+        }}>
+        {visible ? '숨기기' : '보이기'}
+      </button>
+      <hr />
+      {visible && <Info />}
+    </div>
+  )
 }
 
 export default App;
