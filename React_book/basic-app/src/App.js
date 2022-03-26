@@ -6,21 +6,23 @@ import './App.css';
 // import ScrollBox from './components/ScrollBox';
 // import LifeCycleSample from './components/LifeCycleSample';
 // import ErrorBoundary from './components/ErrorBoundary';
-import Info from './components/Info';
+// import Info from './components/Info';
+import Average from './components/Average';
 
 
 const App = ()=>{
-  const [visible, setVisible] = useState(false);
+  // const [visible, setVisible] = useState(false);
   return(
     <div>
-      <button
+      {/* <button
         onClick={()=>{
           setVisible(!visible);
         }}>
         {visible ? '숨기기' : '보이기'}
       </button>
       <hr />
-      {visible && <Info />}
+      {visible && <Info />} */}
+      <Average></Average>
     </div>
   )
 }
