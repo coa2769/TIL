@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useRef } from "react";
 
 class RefSample extends Component{
     input = React.createRef();
@@ -16,5 +16,22 @@ class RefSample extends Component{
     }
 
 }
+
+// const RefSample = ()=>{
+//     const id = useRef(1);
+//     const setId = (n)=>{
+//         id.current = n;
+//     }
+
+//     const printId = ()=>{
+//         console.log(id.current);
+//     }
+
+//     return(
+//         <div>
+//             refsample
+//         </div>
+//     )
+// };
 
 export default RefSample;

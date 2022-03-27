@@ -1,23 +1,29 @@
-import React, { useState, useEffect, useReducer } from "react";
+// import React, { useState, useEffect, useReducer } from "react";
+import React from "react";
+import useInputs from "./useInputs";
 
-function reducer(state, action){
-    return {
-        ...state,
-        [action.name] : action.value
-    }
-}
+// function reducer(state, action){
+//     return {
+//         ...state,
+//         [action.name] : action.value
+//     }
+// }
 
 const Info = ()=>{
-    const [state, dispatch] = useReducer(reducer, {
+    // const [state, dispatch] = useReducer(reducer, {
+    //     name : '',
+    //     nickname : ''
+    // });
+    const [state, onChange] = useInputs({
         name : '',
         nickname : ''
-    });
+    })
 
     const { name, nickname } = state;
 
-    const onChange = e=>{
-        dispatch(e.target);
-    }
+    // const onChange = e=>{
+    //     dispatch(e.target);
+    // }
     // const [name, setName] = useState('');
     // const [nickname, setNickname] = useState('');
 
@@ -29,14 +35,14 @@ const Info = ()=>{
     //     });
     // });
 
-    useEffect(()=>{
-        console.log('effect');
-        console.log(name);
-        return ()=>{
-            console.log('cleanup');
-            console.log(name);
-        }
-    });
+    // useEffect(()=>{
+    //     console.log('effect');
+    //     console.log(name);
+    //     return ()=>{
+    //         console.log('cleanup');
+    //         console.log(name);
+    //     }
+    // });
 
     // const onChangeName = e=>{
     //     setName(e.target.value);
