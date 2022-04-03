@@ -1,20 +1,17 @@
 import path from 'path';
-//+추가
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import webpack, { Configuration as WebpackConfiguration } from "webpack";
 import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
 
-//+추가
 interface Configuration extends WebpackConfiguration {
   devServer?: WebpackDevServerConfiguration;
 }
 
-//+추가
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-const config: webpack.Configuration = {
+const config: Configuration = {
   name: 'sleact',
   mode: isDevelopment ? 'development' : 'production',
   devtool: isDevelopment ? 'hidden-source-map' : 'inline-source-map',
@@ -49,7 +46,6 @@ const config: webpack.Configuration = {
             '@babel/preset-react',
             '@babel/preset-typescript',
           ],
-          //추가
           env: {
             development: {
               plugins: [require.resolve('react-refresh/babel')],
@@ -65,7 +61,6 @@ const config: webpack.Configuration = {
     ],
   },
   plugins: [
-    //+추가
     new ForkTsCheckerWebpackPlugin({
       async: false,
       // eslint: {
@@ -79,25 +74,16 @@ const config: webpack.Configuration = {
     filename: '[name].js',
     publicPath: '/dist/',
   },
-  //+추가
-  devServer : {
-    historyApiFallback: true, //react router에 필요한 설정
+  devServer: {
+    historyApiFallback: true,
     port: 3090,
     devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
-
-    
-  }
-  // devServer: {
-  //   historyApiFallback: true,
-  //   port: 3090,
-  //   devMiddleware: { publicPath: '/dist/' },
-  //   static: { directory: path.resolve(__dirname) },
-  // },
+    // hot : false,
+  },
 };
 
 if (isDevelopment && config.plugins) {
-  //+추가
   config.plugins.push(new webpack.HotModuleReplacementPlugin());
   config.plugins.push(new ReactRefreshWebpackPlugin({
     overlay: {
@@ -105,6 +91,7 @@ if (isDevelopment && config.plugins) {
     }
   }));
 }
+
 if (!isDevelopment && config.plugins) {
 }
 
