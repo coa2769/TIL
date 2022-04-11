@@ -2,7 +2,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import React from 'react';
 import { render } from 'react-dom';
-// import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Link } from 'react-router-dom';
 // import axios from 'axios';
 
 import App from './layouts/App';
@@ -12,8 +12,8 @@ import App from './layouts/App';
 //   process.env.NODE_ENV === 'production' ? 'https://sleact.nodebird.com' : 'http://localhost:3090';
 
 render(
-  // <BrowserRouter>
-    <App />,
-  // </BrowserRouter>,
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
   document.querySelector('#app'),
 );
