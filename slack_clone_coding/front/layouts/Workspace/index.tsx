@@ -211,11 +211,13 @@ const Workspace = () => {
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
+      {/* Channel 생성 Modal */}
       <CreateChannelModal
         show={showCreateChannelModal}
         onCloseModal={onCloseModal}
         setShowCreateChannelModal={setShowCreateChannelModal}
       />
+      {/* Workspace에 사람을 초대하는 Modal */}
       <InviteWorkspaceModal
         show={showInviteWorkspaceModal}
         onCloseModal={onCloseModal}

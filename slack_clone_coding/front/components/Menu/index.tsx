@@ -9,6 +9,7 @@ interface Props {
   closeButton?: boolean;
 }
 
+//props를 넘겨줄 때 PropsWithChildren<Props> 가 필요하다.
 //<PropsWithChildren<Props>>는 제네릭 문법이다.
 const Menu: FC<PropsWithChildren<Props>> = ({ closeButton, style, show, children, onCloseModal }) => {
   const stopPropagation = useCallback((e) => {
