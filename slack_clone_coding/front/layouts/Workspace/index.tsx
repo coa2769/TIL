@@ -42,7 +42,9 @@ const Workspace = () => {
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
   const [socket, disconnectSocket] = useSocket(workspace);
+  //채널에 초대된 user 데이터
   const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher);
+  // 채널 데이터
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
@@ -185,7 +187,9 @@ const Workspace = () => {
                 <button onClick={onLogOut}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
+            {/* 채널 목록 */}
             <ChannelList />
+            {/* DM 목록 */}
             <DMList />
           </MenuScroll>
         </Channels>

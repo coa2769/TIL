@@ -12,6 +12,8 @@ interface Props {
   placeholder: string;
   data?: IUser[];
 }
+
+//onSubmitForm을 부모에게 받는다. props로 받은 onSubmitForm함수로 입력받은 내용을 처리한다.
 const ChatBox: FC<Props> = ({ onSubmitForm, chat, onChangeChat, placeholder, data }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {

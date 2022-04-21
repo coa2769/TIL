@@ -70,6 +70,7 @@ const DirectMessage = () => {
             scrollbarRef.current.scrollToBottom();
           }
         });
+        // 채팅을 보내기
         axios
           .post(`/api/workspaces/${workspace}/dms/${id}/chats`, {
             content: chat,
