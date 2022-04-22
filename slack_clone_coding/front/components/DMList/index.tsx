@@ -17,6 +17,7 @@ const DMList = () => {
     userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
+  //socket 가져오기
   const [socket] = useSocket(workspace);
   const [channelCollapse, setChannelCollapse] = useState(false);
   const [onlineList, setOnlineList] = useState<number[]>([]);

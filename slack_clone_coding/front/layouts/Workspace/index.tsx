@@ -41,6 +41,7 @@ const Workspace = () => {
   const params = useParams<{ workspace?: string }>();
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
+  //socket.io 객체
   const [socket, disconnectSocket] = useSocket(workspace);
   //채널에 초대된 user 데이터
   const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher);
@@ -122,12 +123,15 @@ const Workspace = () => {
     setShowWorkspaceModal((prev) => !prev);
   }, []);
 
+  //socket 연결 끊기
   useEffect(() => {
     return () => {
       console.info('disconnect socket', workspace);
       disconnectSocket();
     };
+    //workspace가 바뀔 때 socket을 연결을 끊어야 하므로 배열에 workspace를 넣어준다.
   }, [disconnectSocket, workspace]);
+  //socket 로그인
   useEffect(() => {
     if (channelData && userData) {
       console.info('로그인하자', socket);
