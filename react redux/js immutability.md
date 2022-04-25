@@ -237,7 +237,5 @@ const와 Object.freeze의 차이점
 
 
 
-
-
 # 수업을 마치며
 

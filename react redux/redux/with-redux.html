@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.1/redux.js"></script>
+</head>
+
+<body>
+    <style>
+        .container {
+            border: 5px solid black;
+            padding: 1rem;
+            margin-bottom:1rem;
+        }
+        body{
+            margin:1rem;
+        }
+    </style>
+    <h1>With redux</h1>
+    <div id="red"></div>
+    <div id="blue"></div>
+    <div id="green"></div>
+    <script>
+        //reducer함수
+        function reducer(state, action){
+            //초기 state값 설정
+            if(state === undefined){
+                return {color:'yellow'}
+            }
+            var newState;
+            if(action.type === 'CHANGE_COLOR'){
+                //!!!!!! 원본 state를 복제한 후 수정해야 한다. !!!!!!!!!!!!
+                //첫번 째 객체에 뒤에 이어나오는 객체들을 복사하여 넣어준다. 
+                newState = Object.assign({}, state, {color:action.color});
+            }
+            console.log(action.type, action, state, newState);
+            return newState;
+        }
+
+        //store 생성
+        var store = Redux.createStore(
+            reducer,
+            window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()    
+        );
+
+        //red box render 함수
+        function red() {
+            //state가져오기
+            var state = store.getState();
+            //color 변경 & input에 onClick이벤트 등록(이때 dispatch함수가 호출된다.)
+            document.querySelector('#red').innerHTML = `
+                <div class="container" id="component_red" style="background-color:${state.color}">
+                    <h1>red</h1>
+                    <input type="button" value="fire" onclick="
+                        store.dispatch({type:'CHANGE_COLOR', color:'red'});
+                    ">
+                </div>
+            `;
+        }
+
+        //render함수 등록
+        store.subscribe(red);
+        red();
+
+        //blue box render 함수
+        function blue() {
+            var state = store.getState();
+            document.querySelector('#blue').innerHTML = `
+                <div class="container" id="component_blue" style="background-color:${state.color}">
+                    <h1>blue</h1>
+                    <input type="button" value="fire" onclick="
+                        store.dispatch({type:'CHANGE_COLOR', color:'blue'});
+                    ">
+                </div>
+            `;
+        }
+
+        //render함수 등록
+        store.subscribe(blue);
+        blue();
+
+        //green box render 함수
+        function green() {
+            var state = store.getState();
+            document.querySelector('#green').innerHTML = `
+                <div class="container" id="component_green" style="background-color:${state.color}">
+                    <h1>green</h1>
+                    <input type="button" value="fire" onclick="
+                        store.dispatch({type:'CHANGE_COLOR', color:'green'});
+                    ">
+                </div>
+            `;
+        }
+
+        //render함수 등록
+        store.subscribe(green);
+        green();
+
+    </script>
+</body>
+
+</html>
