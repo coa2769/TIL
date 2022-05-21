@@ -14,4 +14,4 @@ export default class AddNumber extends Component {
         </div>
       )
     }
-  }
+}
