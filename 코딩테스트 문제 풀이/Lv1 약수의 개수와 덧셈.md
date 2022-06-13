@@ -42,7 +42,14 @@ function solution(left, right) {
 }
 ```
 
-- Number.isInteger  ?
+- Number.isInteger 는 주어진 값이 정수인지 판별한다.
+  - https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+
+- 제곱근이 정수면 약수 갯수가 홀수 이다.
+  - 약수의 갯수가 홀수이려면 제곱근인 정수가 꼭 존재해야 한다.(다른 약수들은 짝지어진다.)
+  - Math.sqrt() 숫자에 루트(√)를 씌워 계산합니다.
+  - https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Math/sqrt
+
 
 ```js
 function solution(left, right) {
@@ -54,3 +61,5 @@ function solution(left, right) {
 ```
 
 - 일단 다 더하고, 제곱수 인거만 두번 빼줌.
+  - 여기서도 제곱근이 정수인 것들은 빼준다.
+  - 단 더해진 짝수 값에 홀수 값을 빼는 것이므로 두번 빼준다.
