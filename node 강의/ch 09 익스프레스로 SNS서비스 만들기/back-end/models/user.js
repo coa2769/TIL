@@ -49,7 +49,7 @@ module.exports = class User extends Sequelize.Model {
     //N:M 관계 (팔로잉 기능)
     db.User.belongsToMany(db.User, {
       //관계를 나타내는 테이블 칼럼이름
-      foreignKey : 'followerId',
+      foreignKey : 'followingId',
       //어느 테이블과의 관계를 나타내는가?
       as : 'Followers',
       //관계를 나타내는 테이블의 이름 지정

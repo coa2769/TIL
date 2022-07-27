@@ -26,22 +26,25 @@ router.post('/:id/follow', isLoggedIn, async (req, res, next) => {
   }
 });
 
-// router.delete('/:id/follow', isLoggedIn, async (req, res, next)=>{
-//   try{
-//     //팔로우 해제할 사용자 데이버메이스 조회
-//     const user = await User.findOne({ where : { id : req.user.id  } });
+router.delete('/:id/follow', isLoggedIn, async (req, res, next)=>{
+  try{
+    //팔로우 해제할 사용자 데이버메이스 조회
+    const user = await User.findOne({ where : { id : req.user.id  } });
 
-//     if(user){
-//       await user.removeFollowing(parseInt(req.params.id, 10));
-//       res.send('success');
-//     }else{
-//       res.status(404).send('no user');
-//     }
-//   } catch(error){
-//     console.error(error);
-//     next(error);
-//   }
 
-// });
+    if(user){
+    console.log('\n!!!!!!delete\n');
+
+      await user.removeFollowing(parseInt(req.params.id, 10));
+      res.send('success');
+    }else{
+      res.status(404).send('no user');
+    }
+  } catch(error){
+    console.error(error);
+    next(error);
+  }
+
+});
 
 module.exports = router;
